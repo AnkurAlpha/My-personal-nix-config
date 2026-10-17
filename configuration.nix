@@ -11,6 +11,10 @@
       ./modules/development.nix
 
     ];
+  programs.nh = {
+    enable = true;
+    flake = "/etc/nixos";
+  };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
