@@ -110,6 +110,9 @@
 	fish
 	gparted
   ];
+  # enable / disable modules 
+  mySystem.development.enable = true;
+
   nix.settings.experimental-features = [
   	"nix-command"
   	"flakes"
