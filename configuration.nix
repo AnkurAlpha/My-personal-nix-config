@@ -11,10 +11,6 @@
       ./modules/development.nix
 
     ];
-  programs.nh = {
-    enable = true;
-    flake = "/etc/nixos";
-  };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -110,8 +106,22 @@
 	fish
 	gparted
   ];
-  # enable / disable modules 
-  mySystem.development.enable = true;
+  # for shortcut build commands/just temporary
+  programs.nh = {
+      enable = true;
+      flake = "/etc/nixos";
+    };
+    # enable / disable modules 
+    mySystem.development = {
+    enable = true;
+  
+    editor = "neovim";
+  
+    extraPackages = with pkgs; [
+      ripgrep
+      fd
+    ];
+  };
 
   nix.settings.experimental-features = [
   	"nix-command"
