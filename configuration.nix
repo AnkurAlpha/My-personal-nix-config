@@ -108,9 +108,9 @@
   ];
   # for shortcut build commands/just temporary
   programs.nh = {
-      enable = true;
-      flake = "/etc/nixos";
-    };
+    enable = true;
+    flake = "/home/ankur/nixos-config";
+  };
     # enable / disable modules 
     mySystem.development = {
     enable = true;
