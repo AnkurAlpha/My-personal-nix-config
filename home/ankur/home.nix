@@ -27,7 +27,7 @@
   ./git.nix
   ./gpg.nix
   ./hyprland
-
+  ./zellij.nix
 
 ];
 }

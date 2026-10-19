@@ -1,6 +1,10 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./kitty.nix
+    ./wofi.nix
+  ];
   xdg.configFile."hypr/hyprland.lua".source =
     ./hyprland.lua;
 
@@ -9,6 +13,7 @@
     zellij
     waybar
     wofi
+    wpaperd
     mako
     networkmanagerapplet
     cliphist
@@ -22,10 +27,16 @@
     pavucontrol
     nwg-bar
     nwg-drawer
+    nwg-dock-hyprland
   ];
 
   xdg.configFile."waybar" = {
   source = ./waybar;
   recursive = true;
 };
+xdg.configFile."wpaperd/config.toml".source =
+  ./wpaperd/config.toml;
+
+  xdg.configFile."nwg-dock-hyprland/style.css".source =
+  ./dock/style.css;
 }

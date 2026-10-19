@@ -51,7 +51,7 @@ hl.on("hyprland.start", function()
 --     hl.exec_cmd(".local/bin/mon.sh")
 -- 
 --     -- background
---     hl.exec_cmd("wpaperd")
+	hl.exec_cmd("wpaperd -d")
 -- 
 --     -- status bar
 --     hl.exec_cmd("waybar")
@@ -84,7 +84,7 @@ hl.on("hyprland.start", function()
 --     hl.exec_cmd(".local/bin/kitty-font-autosize.sh")
 
     -- for dock
-    -- hl.exec_cmd('sleep 10 && nwg-dock-hyprland -x -p "left" -i 24 -mt 10 -mb 10 -ml 5 -f')
+    hl.exec_cmd('sleep 10 && nwg-dock-hyprland -r -x -p "left" -i 24 -mt 10 -mb 10 -ml 5 -f')
 end)
 
 -- Source a file (multi-file configs)
