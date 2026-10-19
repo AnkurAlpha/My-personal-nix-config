@@ -9,7 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ../../modules/development.nix
-
+      ../../modules/hyprland.nix
     ];
 
   # Use the systemd-boot EFI boot loader.

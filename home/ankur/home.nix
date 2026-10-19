@@ -26,6 +26,7 @@
   ./fish.nix
   ./git.nix
   ./gpg.nix
+  ./hyprland
 
 
 ];
