@@ -16,5 +16,16 @@
     brightnessctl
     pamixer
     libnotify
+    htop
+    curl
+    alsa-utils
+    pavucontrol
+    nwg-bar
+    nwg-drawer
   ];
+
+  xdg.configFile."waybar" = {
+  source = ./waybar;
+  recursive = true;
+};
 }
