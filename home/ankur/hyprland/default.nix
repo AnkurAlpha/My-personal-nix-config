@@ -4,6 +4,9 @@
   imports = [
     ./kitty.nix
     ./wofi.nix
+    ./mako.nix
+    ./hyprlock.nix
+    ./hypridle.nix
   ];
   xdg.configFile."hypr/hyprland.lua".source =
     ./hyprland.lua;

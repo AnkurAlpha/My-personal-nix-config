@@ -2,6 +2,8 @@
 { pkgs, ... }:
 
 {
+  security.pam.services.hyprlock = {};
+
   programs.hyprland = {
     enable = true;
     withUWSM = true;

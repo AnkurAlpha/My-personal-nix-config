@@ -28,6 +28,7 @@
   ./gpg.nix
   ./hyprland
   ./zellij.nix
-
+  ./fonts.nix
+  ./theme.nix
 ];
 }
