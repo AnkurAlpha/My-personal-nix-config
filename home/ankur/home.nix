@@ -8,6 +8,8 @@
 
   home.packages = with pkgs; [
     bat
+    gnupg
+    pass
   ];
 
   programs.home-manager.enable = true;
@@ -23,6 +25,7 @@
   imports = [
   ./fish.nix
   ./git.nix
+  ./gpg.nix
 
 
 ];
