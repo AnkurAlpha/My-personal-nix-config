@@ -22,9 +22,17 @@
         url = "git+https://github.com/gen740/SmoothCursor.nvim?rev=12518b284e1e3f7c6c703b346815968e1620bee2";
         flake = false;
     };
+    nvimEmmet = {
+      url = "git+https://github.com/olrtg/nvim-emmet";
+      flake = false;
+    };
+    vimReactSnippets = {
+      url = "git+https://github.com/mlaursen/vim-react-snippets";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, nixvim, fimloom, smoothcursor, ... }:
+  outputs = { self, nixpkgs, home-manager, nixvim, fimloom, smoothcursor, nvimEmmet, vimReactSnippets, ... }:
     let
       ankurLaptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -43,6 +51,8 @@
             home-manager.extraSpecialArgs = {
                 fimloomSrc = fimloom;
                 smoothcursorSrc = smoothcursor;
+                nvimEmmetSrc = nvimEmmet;
+                vimReactSnippetsSrc = vimReactSnippets;
             };
 
             home-manager.users.ankur =

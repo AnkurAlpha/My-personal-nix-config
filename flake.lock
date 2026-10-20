@@ -111,13 +111,31 @@
         "url": "https://github.com/nix-community/nixvim"
       }
     },
+    "nvimEmmet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1717158539,
+        "narHash": "sha256-LgKASQ1xBL8ugxK1g4R3BLQ3ha05cFtZaSYvd2Hy73c=",
+        "ref": "refs/heads/main",
+        "rev": "cde4fb2968704aae5c18b7f8a9bc2508767bb78d",
+        "revCount": 8,
+        "type": "git",
+        "url": "https://github.com/olrtg/nvim-emmet"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/olrtg/nvim-emmet"
+      }
+    },
     "root": {
       "inputs": {
         "fimloom": "fimloom",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
-        "smoothcursor": "smoothcursor"
+        "nvimEmmet": "nvimEmmet",
+        "smoothcursor": "smoothcursor",
+        "vimReactSnippets": "vimReactSnippets"
       }
     },
     "smoothcursor": {
@@ -150,6 +168,22 @@
         "owner": "nix-systems",
         "repo": "default",
         "type": "github"
+      }
+    },
+    "vimReactSnippets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785961756,
+        "narHash": "sha256-wc+/F4qZkSHD0t3ly4S54KbNjFtbDjQ+Kwdvwan69j4=",
+        "ref": "refs/heads/main",
+        "rev": "d794eec185a1ff5a0c9b6cc35cbe3bf997b6d4a9",
+        "revCount": 301,
+        "type": "git",
+        "url": "https://github.com/mlaursen/vim-react-snippets"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/mlaursen/vim-react-snippets"
       }
     }
   },

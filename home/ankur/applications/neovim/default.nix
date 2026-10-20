@@ -1,4 +1,4 @@
-{ lib, pkgs, osConfig, fimloomSrc, config, smoothcursorSrc, ... }:
+{ lib, pkgs, osConfig, fimloomSrc, config, smoothcursorSrc, nvimEmmetSrc, vimReactSnippetsSrc, ... }:
 let
 active = osConfig.my.apps.development.enable && osConfig.my.apps.development.neovim.enable;
 fim = config.my.neovim.fimloom;
@@ -35,12 +35,13 @@ in
 
     config = lib.mkIf active {
         programs.nixvim = {
+            _module.args = { inherit nvimEmmetSrc vimReactSnippetsSrc; };
             enable = true;
             defaultEditor = true;
             viAlias = true;
             vimAlias = true;
 
-            imports = [ ./options.nix ./keymaps.nix ./theme.nix ./plugins.nix ./lsp.nix ./completion.nix ./dashboard.nix ./statusline.nix ./snippets.nix ];
+            imports = [ ./options.nix ./keymaps.nix ./theme.nix ./plugins.nix ./lsp.nix ./completion.nix ./dashboard.nix ./statusline.nix ./snippets.nix ./webdev-extras.nix ];
 
             extraPackages = with pkgs; [ ripgrep fd git curl ]
                 ++ lib.optionals (fim.enable && fim.autoStartServer) [ llama-cpp ];

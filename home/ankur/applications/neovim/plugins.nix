@@ -244,19 +244,6 @@ in
       end
     end
 
-    -- Optional: this only does something if cloak.nvim is installed elsewhere.
-    setup("cloak", {
-      enabled = true,
-      cloak_character = "*",
-      highlight_group = "Comment",
-      patterns = {
-        {
-          file_pattern = { ".env*", "wrangler.toml", ".dev.vars" },
-          cloak_pattern = "=.+",
-        },
-      },
-    })
-
     setup("fidget")
 
     require("nvim-ts-autotag").setup({
