@@ -16,6 +16,15 @@
       };
     };
   };
+  highlight = {
+      RainbowRed.fg = "#E06C75";
+      RainbowYellow.fg = "#E5C07B";
+      RainbowBlue.fg = "#61AFEF";
+      RainbowOrange.fg = "#D19A66";
+      RainbowGreen.fg = "#98C379";
+      RainbowViolet.fg = "#C678DD";
+      RainbowCyan.fg = "#56B6C2";
+  };
   # Personal highlights retained from old cyberdream config.
   extraConfigLuaPost = ''
     local overrides = {

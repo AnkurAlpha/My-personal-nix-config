@@ -1,2 +1,4 @@
 result
 result-*
+# Ignore accidentally created literal-tilde directories
+~/

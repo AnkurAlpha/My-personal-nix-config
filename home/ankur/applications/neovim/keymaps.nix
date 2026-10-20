@@ -1,6 +1,8 @@
 { ... }: {
-  # Most keymaps from Garuda's lua/Ankur/remap.lua, represented as native Nix lists.
-  keymaps = [
+# Most keymaps from Garuda's lua/Ankur/remap.lua, represented as native Nix lists.
+    keymaps = [
+    { mode = "n"; key = "<leader>gs"; action = "<cmd>Git<CR>"; options.desc = "Open Git status"; }
+    { mode = "n"; key = "<leader>mt"; action = "<cmd>RenderMarkdown toggle<CR>"; options.desc = "Toggle Markdown rendering"; }
     { mode = "n"; key = "<leader>w"; action = "<cmd>w<CR>"; }
     { mode = "n"; key = "<leader>q"; action = "<cmd>q!<CR>"; }
     { mode = "n"; key = "<leader>pv"; action = "<cmd>NvimTreeToggle<CR>"; }
@@ -11,6 +13,9 @@
     { mode = "n"; key = "<leader>fh"; action = "<cmd>Telescope help_tags<CR>"; }
     { mode = "n"; key = "<leader>fm"; action = "<cmd>Telescope man_pages<CR>"; }
     { mode = "n"; key = "<leader>u"; action = "<cmd>UndotreeToggle<CR>"; }
+    { mode = "n"; key = "<leader>nf"; action = "<cmd>Neogen func<CR>"; options.desc = "Generate function documentation"; }
+    { mode = "n"; key = "<leader>nt"; action = "<cmd>Neogen type<CR>"; options.desc = "Generate type documentation"; }
+    { mode = "n"; key = "<leader>tt"; action = "<cmd>Trouble diagnostics toggle<CR>"; options.desc = "Toggle Trouble diagnostics"; }
     { mode = "n"; key = "<C-t>"; action = "<cmd>ToggleTerm<CR>"; }
     { mode = "n"; key = "<C-s>"; action = "<cmd>vsplit<CR><C-w>w"; }
     { mode = "n"; key = "<C-n>"; action = "<cmd>split<CR><C-w>w"; }
@@ -39,5 +44,5 @@
     { mode = "n"; key = "<leader>x"; action = "<cmd>!chmod +x %<CR>"; }
     { mode = "n"; key = "<leader>mr"; action = "<cmd>CellularAutomaton make_it_rain<CR>"; }
     { mode = "n"; key = "<leader>mp"; action = "<cmd>MarkdownPreviewToggle<CR>"; }
-  ];
-}
+    ];
+         }

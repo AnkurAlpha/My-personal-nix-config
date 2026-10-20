@@ -22,12 +22,15 @@
     undofile = true;
     backup = true;
     writebackup = true;
-    backupdir = [ "~/.local/state/nvim/backups//" ];
-    undodir = [ "~/.local/state/nvim/undo//" ];
   };
   extraConfigLua = ''
-    vim.fn.mkdir(vim.fn.expand("~/.local/state/nvim/backups"), "p")
-    vim.fn.mkdir(vim.fn.expand("~/.local/state/nvim/undo"), "p")
+      local state = vim.fn.stdpath("state")
+
+      vim.fn.mkdir(state .. "/backups", "p")
+      vim.fn.mkdir(state .. "/undo", "p")
+
+      vim.opt.backupdir = { state .. "/backups//" }
+  vim.opt.undodir = { state .. "/undo//" }
     vim.filetype.add({ extension = { templ = "templ" } })
 
     local augroup = vim.api.nvim_create_augroup("Ankur", { clear = true })
