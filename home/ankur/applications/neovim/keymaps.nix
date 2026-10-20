@@ -1,6 +1,10 @@
 { ... }: {
 # Most keymaps from Garuda's lua/Ankur/remap.lua, represented as native Nix lists.
     keymaps = [
+  { mode = "n"; key = "<leader>mm"; action = "<cmd>lua MiniMap.toggle()<CR>"; options.desc = "Toggle minimap"; }
+  { mode = "n"; key = "<leader>mo"; action = "<cmd>lua MiniMap.open()<CR>"; options.desc = "Open minimap"; }
+  { mode = "n"; key = "<leader>mc"; action = "<cmd>lua MiniMap.close()<CR>"; options.desc = "Close minimap"; }
+  { mode = "n"; key = "<leader>mf"; action = "<cmd>lua MiniMap.toggle_focus()<CR>"; options.desc = "Focus minimap"; }
     { mode = "n"; key = "<leader>gs"; action = "<cmd>Git<CR>"; options.desc = "Open Git status"; }
     { mode = "n"; key = "<leader>mt"; action = "<cmd>RenderMarkdown toggle<CR>"; options.desc = "Toggle Markdown rendering"; }
     { mode = "n"; key = "<leader>w"; action = "<cmd>w<CR>"; }

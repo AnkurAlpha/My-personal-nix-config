@@ -18,9 +18,13 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    smoothcursor = {
+        url = "git+https://github.com/gen740/SmoothCursor.nvim?rev=12518b284e1e3f7c6c703b346815968e1620bee2";
+        flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, nixvim, fimloom, ... }:
+  outputs = { self, nixpkgs, home-manager, nixvim, fimloom, smoothcursor, ... }:
     let
       ankurLaptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -36,7 +40,10 @@
 
             # Nixvim extends Home Manager with programs.nixvim.
             home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
-            home-manager.extraSpecialArgs = { fimloomSrc = fimloom; };
+            home-manager.extraSpecialArgs = {
+                fimloomSrc = fimloom;
+                smoothcursorSrc = smoothcursor;
+            };
 
             home-manager.users.ankur =
               import ./home/ankur/home.nix;

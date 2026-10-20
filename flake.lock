@@ -116,7 +116,25 @@
         "fimloom": "fimloom",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
-        "nixvim": "nixvim"
+        "nixvim": "nixvim",
+        "smoothcursor": "smoothcursor"
+      }
+    },
+    "smoothcursor": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1726648986,
+        "narHash": "sha256-P0jGm5ODEVbtmqPGgDFBPDeuOF49CFq5x1PzubEJgaM=",
+        "ref": "refs/heads/main",
+        "rev": "12518b284e1e3f7c6c703b346815968e1620bee2",
+        "revCount": 169,
+        "type": "git",
+        "url": "https://github.com/gen740/SmoothCursor.nvim"
+      },
+      "original": {
+        "rev": "12518b284e1e3f7c6c703b346815968e1620bee2",
+        "type": "git",
+        "url": "https://github.com/gen740/SmoothCursor.nvim"
       }
     },
     "systems": {
