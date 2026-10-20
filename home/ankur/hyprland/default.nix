@@ -19,6 +19,7 @@
     wpaperd
     mako
     networkmanagerapplet
+    grimblast
     cliphist
     wl-clipboard
     brightnessctl
@@ -31,6 +32,9 @@
     nwg-bar
     nwg-drawer
     nwg-dock-hyprland
+    jq
+    hyprpicker
+    libnotify
   ];
 
   xdg.configFile."waybar" = {

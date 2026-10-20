@@ -76,7 +76,7 @@ hl.on("hyprland.start", function()
 -- 
 --     -- Hypr Ecosystem
 --     -- hypridle
---     hl.exec_cmd("hypridle")
+    	hl.exec_cmd("hypridle")
 --     -- for eye protection
 --     hl.exec_cmd("wlsunset -t 3000 -T 4000 -S 7:30 -s 19:00")
 -- 
@@ -369,27 +369,15 @@ bind_exec("code:233", "brightnessctl -c backlight set +5%")
 bind_exec(mainMod .. " + SHIFT + C", "killall -9 wpaperd && wpaperd")
 
 -- Screenshots:
---
--- Change to swappy https://github.com/jtheoof/swappy
--- Old functions only commented out to make it easier for the user to change if necessary.
 
--- Snip a selection and pipe to swappy
--- bind_exec("Print", 'grim -g "$(slurp)" - | swappy -f -')
--- Screenshot a window and pipe to swappy
--- bind_exec("CTRL + Print", ".config/hypr/scripts/screenshot_window.sh")
--- Screenshot the current display and pipe to swappy
--- bind_exec("SHIFT + Print", ".config/hypr/scripts/screenshot_display.sh")
-
--- https://github.com/hyprwm/contrib/blob/main/grimblast/grimblast.1.scd
--- Print: All outputs
--- SHIFT+Print: Select area
--- $mainMod+Print: Current window
--- $mainMod+Shift+Print: Current output
-
-hl.bind("Print", hl.dsp.exec_cmd("grimblast save screen && notify-send Screenshot captured"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast save area && notify-send Selected\\ area captured"))
-hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("grimblast save active && notify-send Active\\ window captured"))
-hl.bind(mainMod .. " + SHIFT + Print", hl.dsp.exec_cmd("grimblast output active && notify-send Output captured"))
+-- Entire screen
+hl.bind("Print", hl.dsp.exec_cmd("grimblast save screen && notify-send 'Screenshot captured'"))
+-- Select area
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast save area && notify-send 'Selected area captured'"))
+-- Active window
+hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("grimblast save active && notify-send 'Active window captured'"))
+-- Current monitor
+hl.bind(mainMod .. " + SHIFT + Print", hl.dsp.exec_cmd("grimblast save output && notify-send 'Output captured'"))
 
 -- for resizing window
 -- will switch to a submap called resize

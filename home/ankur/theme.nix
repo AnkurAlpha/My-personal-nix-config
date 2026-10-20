@@ -1,8 +1,10 @@
 { pkgs, ... }:
 
 {
+
   gtk = {
     enable = true;
+    gtk2.force = true;
 
     theme = {
       name = "Sweet-Dark";

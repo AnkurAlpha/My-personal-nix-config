@@ -48,7 +48,11 @@
             "activated": "",
             "deactivated": "",
         },
-        "on-click":"exec ~/.config/hypr/scripts/idle_inhibitor.sh",
+	// "on-click":"exec ~/.config/hypr/scripts/idle_inhibitor.sh",
+	"tooltip": true,
+    	"tooltip-format-activated": "Caffeine ON - Idle actions paused",
+    	"tooltip-format-deactivated": "Caffeine OFF - Normal idle",
+    	"start-activated": false
 
     },
     "tray": {
