@@ -1,5 +1,42 @@
 {
   "nodes": {
+    "fimloom": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788626688,
+        "narHash": "sha256-/V7U9LYvcQd5cjCW89565lX3AHVVOGN6qN5egD1sb1w=",
+        "ref": "refs/heads/main",
+        "rev": "baa292025608bca2e62114625a07334d5e4e8b0a",
+        "revCount": 15,
+        "type": "git",
+        "url": "https://github.com/AnkurAlpha/fimloom.nvim"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/AnkurAlpha/fimloom.nvim"
+      }
+    },
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nixvim",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788450739,
+        "narHash": "sha256-glZLQlzIn1fXH6PazR2iUmTo7kzzyYSshrWhLS9TqCU=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "31729ca8cbdb4fa927b34e5f4353e6a83f39e993",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -37,10 +74,64 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1789749394,
+        "narHash": "sha256-cFTsMQz8Hzn8MT49oaeLSHg62tE86NykugCWkeM2ypk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "cf9d2fb3e50fa1cd5114c47505ea9177f7ff5f49",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixvim": {
+      "inputs": {
+        "flake-parts": "flake-parts",
+        "nixpkgs": "nixpkgs_2",
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1789959143,
+        "narHash": "sha256-9oBHyJtUyunZL+6v0Ub8Y759cXcejQiTHpXtGcx5RLs=",
+        "ref": "nixos-26.05",
+        "rev": "4836e77b1798cd42e2de28593bec4c1788da08f5",
+        "revCount": 4589,
+        "type": "git",
+        "url": "https://github.com/nix-community/nixvim"
+      },
+      "original": {
+        "ref": "nixos-26.05",
+        "type": "git",
+        "url": "https://github.com/nix-community/nixvim"
+      }
+    },
     "root": {
       "inputs": {
+        "fimloom": "fimloom",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "nixvim": "nixvim"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
       }
     }
   },

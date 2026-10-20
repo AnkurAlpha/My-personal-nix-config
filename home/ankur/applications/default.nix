@@ -2,6 +2,7 @@
 {
   imports = [
     ./development.nix
+    ./neovim
     ./multimedia.nix
     ./desktop.nix
     ./internet.nix

@@ -13,20 +13,4 @@ in {
     ++ add c.wget.enable [ pkgs.wget ]
     ++ add c.cowsay.enable [ pkgs.cowsay ];
 
-  # Fully declarative baseline; the old Garuda nvim/ directory is not in the archive.
-  # Later we can replace this with a Nixvim module after inspecting its actual plugin config.
-  programs.neovim = lib.mkIf (c.enable && c.neovim.enable) {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    initLua = ''
-      vim.opt.number = true
-      vim.opt.relativenumber = true
-      vim.opt.expandtab = true
-      vim.opt.shiftwidth = 4
-      vim.opt.tabstop = 4
-      vim.opt.termguicolors = true
-    '';
-  };
 }
