@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 
 {
+  config = lib.mkIf (osConfig.my.apps.appearance.enable && osConfig.my.apps.appearance.fonts.enable) {
   fonts.fontconfig.enable = true;
 
   home.packages = with pkgs; [
@@ -9,4 +10,5 @@
     ubuntu-classic
     noto-fonts-color-emoji
   ];
+};
 }

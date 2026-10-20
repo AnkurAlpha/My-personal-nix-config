@@ -1,22 +1,12 @@
-
-{ pkgs, ... }:
-
+{ lib, config, ... }:
 {
-  security.pam.services.hyprlock = {};
-
   programs.hyprland = {
     enable = true;
     withUWSM = true;
     xwayland.enable = true;
   };
-
-  environment.systemPackages = with pkgs; [
-    kitty
-    waybar
-    wofi
-    wl-clipboard
-    grim
-    slurp
-  ];
+  # Core compositor retained independently of desktop applications.
+  # KDE remains an alternative session if desktop tools are switched off.
+  security.pam.services.hyprlock = lib.mkIf
+    (config.my.apps.desktop.enable && config.my.apps.desktop.hyprlock.enable) {};
 }
-

@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 
 {
+  config = lib.mkIf (osConfig.my.apps.appearance.enable && osConfig.my.apps.appearance.theme.enable) {
 
   gtk = {
     enable = true;
@@ -31,4 +32,5 @@
         "$out/share/icons/Sweet-cursors"
     '';
   };
+};
 }

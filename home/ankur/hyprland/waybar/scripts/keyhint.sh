@@ -14,9 +14,9 @@ yad --width=640 --height=700 \
 --timeout-indicator=right \
 "ESC" "close this app" "" "=" "modkey" "(set mod Mod4)" \
 "+s" "G-hyprland" "A setting script" \
-"+enter/+t" "Terminal" "(foot)" \
+"+enter/+t" "Terminal" "(kitty)" \
 "" "Application Menu" "(wofi)" \
-"+Shift+d" "Full Launcher" "(nwggrid)" \
+"+Shift+d" "Full Launcher" "(nwg-drawer)" \
 "+o" "" "Open Broswer" \
 "+e" "💧" "Emoje selector" \
 "+n" "" "Open Files" \
@@ -37,5 +37,5 @@ yad --width=640 --height=700 \
 "+p" "Dwindle effect" "pseudo" \
 "+Shift+p" "Dwindle effect" "toggle split" \
 "+Shift+g" "G-hyprland" "add/remove G-Hyprland" \
-"+i" "Calamares" "Install Garuda Hyprland" \
+"+i" "Calamares" "Not available on NixOS" \
 "Window will be closed in 60 sec" "" ""\

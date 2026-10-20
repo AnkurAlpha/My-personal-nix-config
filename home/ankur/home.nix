@@ -6,11 +6,6 @@
 
   home.stateVersion = "26.05";
 
-  home.packages = with pkgs; [
-    bat
-    gnupg
-    pass
-  ];
 
   programs.home-manager.enable = true;
 
@@ -30,5 +25,6 @@
   ./zellij.nix
   ./fonts.nix
   ./theme.nix
+  ./applications
 ];
 }

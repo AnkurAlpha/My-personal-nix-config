@@ -8,7 +8,9 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../modules/development.nix
+      ../../modules/applications/options.nix
+      ../../modules/applications/docker.nix
+      ./applications.nix
       ../../modules/hyprland.nix
     ];
 
@@ -84,10 +86,7 @@
     isNormalUser = true;
     description = "Ankur Kumar";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      kdePackages.kate
-    #  thunderbird
-    ];
+    packages = [ ];  # Managed by Home Manager utilities.kate
   };
 
   # Install firefox.
@@ -98,30 +97,15 @@
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
-  # OBS Studio for screen recording and streaming
-	programs.obs-studio.enable = true;
-  environment.systemPackages = with pkgs; [
-	vivaldi
-	signal-desktop
-	fish
-	gparted
-  ];
+  # User applications are managed by Home Manager under home/ankur/applications/.
+  environment.systemPackages = [ ];
   # for shortcut build commands/just temporary
   programs.nh = {
     enable = true;
     flake = "/home/ankur/nixos-config";
   };
-    # enable / disable modules 
-    mySystem.development = {
-    enable = true;
-  
-    editor = "neovim";
-  
-    extraPackages = with pkgs; [
-      ripgrep
-      fd
-    ];
-  };
+  # Application switches are in ./applications.nix.
+
 
   nix.settings.experimental-features = [
   	"nix-command"

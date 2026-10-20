@@ -27,17 +27,17 @@ hl.monitor({
 
 hl.on("hyprland.start", function()
 	-- NetworkManager tray
-    	hl.exec_cmd("nm-applet --indicator")
+    	if app_enabled.networkApplet then hl.exec_cmd("nm-applet --indicator") end
 
     	-- Garuda's status bar
-    	hl.exec_cmd("waybar")
+    	if app_enabled.waybar then hl.exec_cmd("waybar") end
 
     	-- Notification daemon
-    	hl.exec_cmd("mako")
+    	if app_enabled.mako then hl.exec_cmd("mako") end
 
     	-- Clipboard history
-    	hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    	hl.exec_cmd("wl-paste --type image --watch cliphist store")
+    	if app_enabled.clipboard then hl.exec_cmd("wl-paste --type text --watch cliphist store") end
+    	if app_enabled.clipboard then hl.exec_cmd("wl-paste --type image --watch cliphist store") end
 --     -- Execute your favorite apps at launch
 --     hl.exec_cmd("garuda-welcome")
 -- 
@@ -51,7 +51,7 @@ hl.on("hyprland.start", function()
 --     hl.exec_cmd(".local/bin/mon.sh")
 -- 
 --     -- background
-	hl.exec_cmd("wpaperd -d")
+	if app_enabled.wpaperd then hl.exec_cmd("wpaperd -d") end
 -- 
 --     -- status bar
 --     hl.exec_cmd("waybar")
@@ -76,7 +76,7 @@ hl.on("hyprland.start", function()
 -- 
 --     -- Hypr Ecosystem
 --     -- hypridle
-    	hl.exec_cmd("hypridle")
+    	if app_enabled.hypridle then hl.exec_cmd("hypridle") end
 --     -- for eye protection
 --     hl.exec_cmd("wlsunset -t 3000 -T 4000 -S 7:30 -s 19:00")
 -- 
@@ -84,7 +84,7 @@ hl.on("hyprland.start", function()
 --     hl.exec_cmd(".local/bin/kitty-font-autosize.sh")
 
     -- for dock
-    hl.exec_cmd('sleep 10 && nwg-dock-hyprland -r -x -p "left" -i 24 -mt 10 -mb 10 -ml 5 -f')
+    if app_enabled.dock then hl.exec_cmd('sleep 10 && nwg-dock-hyprland -r -x -p "left" -i 24 -mt 10 -mb 10 -ml 5 -f') end
 end)
 
 -- Source a file (multi-file configs)
@@ -208,7 +208,7 @@ hl.gesture({
     fingers   = 3,
     direction = "up",
     action    = function()
-        hl.exec_cmd("garuda-toolbox")
+        if app_enabled.drawer then hl.exec_cmd("nwg-drawer -mb 10 -mr 10 -ml 10 -mt 10") end
     end,
 })
 
@@ -216,7 +216,7 @@ hl.gesture({
     fingers   = 3,
     direction = "down",
     action    = function()
-        hl.exec_cmd("nwg-drawer -mb 10 -mr 10 -ml 10 -mt 10")
+        if app_enabled.drawer then hl.exec_cmd("nwg-drawer -mb 10 -mr 10 -ml 10 -mt 10") end
     end,
 })
 
@@ -274,38 +274,49 @@ local function bind_exec(keys, cmd, opts)
     hl.bind(keys, hl.dsp.exec_cmd(cmd), opts)
 end
 
+-- When an application is disabled in Nix, do not install its keybinding.
+local function bind_app(app, keys, cmd, opts)
+    if app_enabled[app] then bind_exec(keys, cmd, opts) end
+end
+
 -- Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
 bind_exec(mainMod .. " + SHIFT + R", "hyprctl reload")
-bind_exec(mainMod .. " + code:36", "kitty -e fish -c 'zellij' ") -- 36 = Enter
-bind_exec(mainMod .. " + N", "kitty -e fish -c 'yazi' ")         -- 36 = Enter
-bind_exec(mainMod .. " + T", "kitty")
+if app_enabled.kitty and app_enabled.fish and app_enabled.zellij then
+    bind_exec(mainMod .. " + code:36", "kitty -e fish -c 'zellij'")
+end -- 36 = Enter
+if app_enabled.kitty and app_enabled.fish and app_enabled.yazi then
+    bind_exec(mainMod .. " + N", "kitty -e fish -c 'yazi'")
+end         -- 36 = Enter
+bind_app("kitty", mainMod .. " + T", "kitty")
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-bind_exec(mainMod .. " + SHIFT + E", "nwgbar")
-bind_exec(mainMod .. " + SHIFT + N", "thunar")
+bind_app("powerMenu", mainMod .. " + SHIFT + E", "nwgbar")
+bind_app("thunar", mainMod .. " + SHIFT + N", "thunar")
 hl.bind(mainMod .. " + SHIFT + code:65", hl.dsp.window.float({ action = "toggle" }))
-bind_exec("SUPER + D", "pkill wofi || wofi --normal-window --show drun --allow-images", { release = true })
-bind_exec(mainMod .. " + E", "emote")
-bind_exec(mainMod .. " + SHIFT + D", "nwg-drawer -mb 10 -mr 10 -ml 10 -mt 10")
+bind_app("wofi", "SUPER + D", "pkill wofi || wofi --normal-window --show drun --allow-images", { release = true })
+bind_app("emote", mainMod .. " + E", "emote")
+bind_app("drawer", mainMod .. " + SHIFT + D", "nwg-drawer -mb 10 -mr 10 -ml 10 -mt 10")
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())               -- dwindle
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.layout("togglesplit")) -- dwindle
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"))
-bind_exec(mainMod .. " + B", "brightnessctl -c backlight set 5%-")
-bind_exec(mainMod .. " + SHIFT + B", "brightnessctl -c backlight set +5%")
+if app_enabled.clipboard and app_enabled.wofi then
+    hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"))
+end
+bind_app("brightness", mainMod .. " + B", "brightnessctl -c backlight set 5%-")
+bind_app("brightness", mainMod .. " + SHIFT + B", "brightnessctl -c backlight set +5%")
 
 
 -- Mainmod + Function keys
-bind_exec(mainMod .. " + F1", "firedragon")
-bind_exec(mainMod .. " + F2", "thunderbird")
-bind_exec(mainMod .. " + F3", "thunar")
-bind_exec(mainMod .. " + F4", "geany")
-bind_exec(mainMod .. " + F5", "github-desktop")
-bind_exec(mainMod .. " + F6", "gparted")
-bind_exec(mainMod .. " + F7", "inkscape")
-bind_exec(mainMod .. " + F8", "blender")
-bind_exec(mainMod .. " + F9", "meld")
-bind_exec(mainMod .. " + F10", "joplin-desktop")
-bind_exec(mainMod .. " + F11", "snapper-tools")
-bind_exec(mainMod .. " + F12", "galculator")
+bind_app("firefox", mainMod .. " + F1", "firefox")
+bind_app("thunderbird", mainMod .. " + F2", "thunderbird")
+bind_app("thunar", mainMod .. " + F3", "thunar")
+bind_app("geany", mainMod .. " + F4", "geany")
+bind_app("githubDesktop", mainMod .. " + F5", "github-desktop")
+bind_app("gparted", mainMod .. " + F6", "gparted")
+bind_app("inkscape", mainMod .. " + F7", "inkscape")
+bind_app("blender", mainMod .. " + F8", "blender")
+bind_app("meld", mainMod .. " + F9", "meld")
+bind_app("joplin", mainMod .. " + F10", "joplin-desktop")
+-- F11 previously launched Garuda-only snapper-tools; deliberately unbound on NixOS.
+bind_app("galculator", mainMod .. " + F12", "galculator")
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "l" }))
@@ -353,31 +364,31 @@ hl.layer_rule({
 })
 
 -- set volume (laptops only and may or may not work on PCs)
-bind_exec('code:122', 'pamixer --decrease 5; notify-send " Volume: "$(pamixer --get-volume) -t 500')
-bind_exec('code:123', 'pamixer --increase 5; notify-send " Volume: "$(pamixer --get-volume) -t 500')
-bind_exec('code:121', 'pamixer --toggle-mute; notify-send " Volume: Toggle-mute" -t 500')
-bind_exec('XF86AudioMicMute',
+bind_app("audio", 'code:122', 'pamixer --decrease 5; notify-send " Volume: "$(pamixer --get-volume) -t 500')
+bind_app("audio", 'code:123', 'pamixer --increase 5; notify-send " Volume: "$(pamixer --get-volume) -t 500')
+bind_app("audio", 'code:121', 'pamixer --toggle-mute; notify-send " Volume: Toggle-mute" -t 500')
+bind_app("audio", 'XF86AudioMicMute',
     'pactl set-source-mute @DEFAULT_SOURCE@ toggle; notify-send "System Mic: Toggle-mute" -t 500')
 
 -- other bindings
-bind_exec(mainMod .. " + O", "vivaldi")
+bind_app("vivaldi", mainMod .. " + O", "vivaldi")
 hl.bind(mainMod .. " + M", hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen_state({ internal = 0, client = 2 }))
-bind_exec("code:232", "brightnessctl -c backlight set 5%-")
-bind_exec("code:233", "brightnessctl -c backlight set +5%")
-bind_exec(mainMod .. " + SHIFT + C", "killall -9 wpaperd && wpaperd")
+bind_app("brightness", "code:232", "brightnessctl -c backlight set 5%-")
+bind_app("brightness", "code:233", "brightnessctl -c backlight set +5%")
+bind_app("wpaperd", mainMod .. " + SHIFT + C", "pkill -x wpaperd; wpaperd -d")
 
 -- Screenshots:
 
 -- Entire screen
-hl.bind("Print", hl.dsp.exec_cmd("grimblast save screen && notify-send 'Screenshot captured'"))
+if app_enabled.screenshots then hl.bind("Print", hl.dsp.exec_cmd("grimblast save screen && notify-send 'Screenshot captured'")) end
 -- Select area
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast save area && notify-send 'Selected area captured'"))
+if app_enabled.screenshots then hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast save area && notify-send 'Selected area captured'")) end
 -- Active window
-hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("grimblast save active && notify-send 'Active window captured'"))
+if app_enabled.screenshots then hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd("grimblast save active && notify-send 'Active window captured'")) end
 -- Current monitor
-hl.bind(mainMod .. " + SHIFT + Print", hl.dsp.exec_cmd("grimblast save output && notify-send 'Output captured'"))
+if app_enabled.screenshots then hl.bind(mainMod .. " + SHIFT + Print", hl.dsp.exec_cmd("grimblast save output && notify-send 'Output captured'")) end
 
 -- for resizing window
 -- will switch to a submap called resize
@@ -454,9 +465,9 @@ hl.window_rule({
 })
 
 -- video play paues bindings
-bind_exec("code:172", "playerctl play-pause")
-bind_exec("code:171", "playerctl next")
-bind_exec("code:173", "playerctl previous")
+bind_app("playerctl", "code:172", "playerctl play-pause")
+bind_app("playerctl", "code:171", "playerctl next")
+bind_app("playerctl", "code:173", "playerctl previous")
 
 -- NOTE: In newer Hyprland versions, misc:vfr was moved to debug:vfr.
 -- Keeping the old misc:vfr line causes: unknown config key 'misc:vfr'.
@@ -471,13 +482,13 @@ hl.config({
 })
 
 -- enable G-Hyprland
-bind_exec(mainMod .. " + SHIFT + G", "kitty -e ~/.local/bin/bear/implement_gum.sh enable")
+-- Garuda G-Hyprland utility intentionally disabled on NixOS.
 
 -- Install Garuda Hyprland
-bind_exec(mainMod .. " + I", ".local/bin/calamares.sh")
+-- Calamares installer intentionally disabled on an installed NixOS system.
 
 -- bind = SUPER, V, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy
-bind_exec("ALT + SHIFT + H", "~/.config/hypr/brain/scripts/nwg_dock_toggle.sh")
+-- Garuda brain toggle script not migrated; dock still autostarts if enabled.
 
 -- hl.layer_rule({ match = { namespace = "nwg-dock" },        blur = true })
 

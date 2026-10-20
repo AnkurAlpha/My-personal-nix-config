@@ -1,6 +1,7 @@
-{ ... }:
+{ lib, osConfig, ... }:
 
 {
+  config = lib.mkIf (osConfig.my.apps.development.enable && osConfig.my.apps.development.git.enable) {
   programs.git = {
     enable = true;
 
@@ -13,4 +14,5 @@
       safe.directory = "/etc/nixos";
     };
   };
+};
 }

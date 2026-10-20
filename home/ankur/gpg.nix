@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 
 {
+  config = lib.mkIf (osConfig.my.apps.security.enable && osConfig.my.apps.security.gpgAgent.enable) {
   services.gpg-agent = {
     enable = true;
 
@@ -11,4 +12,5 @@
     # Integrate with our Fish shell
     enableFishIntegration = true;
   };
+};
 }

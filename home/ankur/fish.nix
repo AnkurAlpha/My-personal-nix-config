@@ -1,6 +1,7 @@
-{ ... }:
+{ lib, osConfig, ... }:
 
 {
+  config = lib.mkIf (osConfig.my.apps.desktop.enable && osConfig.my.apps.desktop.fish.enable) {
   programs.fish = {
     enable = true;
 
@@ -18,4 +19,5 @@
       set -g fish_greeting
     '';
   };
+};
 }
