@@ -20,7 +20,7 @@ in {
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
-    extraLuaConfig = ''
+    initLua = ''
       vim.opt.number = true
       vim.opt.relativenumber = true
       vim.opt.expandtab = true

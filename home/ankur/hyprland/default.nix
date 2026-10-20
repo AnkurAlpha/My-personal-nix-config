@@ -49,6 +49,7 @@ in {
     ./hyprlock.nix
     ./hypridle.nix
     ./waybar.nix
+    ./drawer.nix
   ];
   # The compositor itself remains enabled even if the desktop app group is off.
   xdg.configFile."hypr/hyprland.lua".text = enabledLua + builtins.readFile ./hyprland.lua;
