@@ -63,7 +63,7 @@
     };
     utilities = {
       enable = true;
-      thunar.enable = true;
+      thunar.enable = false;
       geany.enable = false;
       gparted.enable = true;
       meld.enable = true;
@@ -71,7 +71,7 @@
       galculator.enable = true;
       emote.enable = true;
       yad.enable = true;
-      swappy.enable = true;
+      swappy.enable = false;
       kate.enable = false;
     };
     systemTools = {
@@ -86,9 +86,9 @@
       duf.enable = true;
       dust.enable = false;
       ncdu.enable = false;
-      filelight.enable = true;
+      filelight.enable = false;
       gnomeDisks.enable = false;
-      smartmontools.enable = true;
+      smartmontools.enable = false;
       # Hardware inspection
       lmSensors.enable = true;
       lshw.enable = true;

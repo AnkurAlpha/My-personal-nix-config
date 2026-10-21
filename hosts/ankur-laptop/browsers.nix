@@ -10,8 +10,8 @@
 
   config.my.apps.browsers = {
     enable = true;
-    firefox.enable = true;
-    chromium.enable = true;
+    firefox.enable = false;
+    chromium.enable = false;
     vivaldi.enable = true;
   };
 }

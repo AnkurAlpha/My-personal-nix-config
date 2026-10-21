@@ -13,7 +13,7 @@
 
   config.my.apps.media = {
     enable = true;
-    vlc.enable = true;
+    vlc.enable = false;
     mpv.enable = true;
     obs.enable = true;
     gimp.enable = true;
