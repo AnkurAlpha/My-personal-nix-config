@@ -11,6 +11,8 @@
     ./desktop.nix
     ./internet.nix
     ./utilities.nix
+    ./system-tools.nix
+
     ./security.nix
   ];
 }

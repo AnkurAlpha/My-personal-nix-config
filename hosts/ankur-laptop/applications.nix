@@ -74,6 +74,33 @@
       swappy.enable = true;
       kate.enable = false;
     };
+    systemTools = {
+      enable = true;
+      # Monitoring
+      btop.enable = true;
+      nvtop.enable = true;
+      iotop.enable = false;
+      powertop.enable = false;
+      # Disk space and disk health
+      gdu.enable = true;
+      duf.enable = true;
+      dust.enable = false;
+      ncdu.enable = false;
+      filelight.enable = true;
+      gnomeDisks.enable = false;
+      smartmontools.enable = true;
+      # Hardware inspection
+      lmSensors.enable = true;
+      lshw.enable = true;
+      pciutils.enable = true;
+      usbutils.enable = true;
+      lsof.enable = true;
+      # Nix inspection (no automatic deletion/cleanup)
+      nixTree.enable = true;
+      nvd.enable = true;
+      nixOutputMonitor.enable = false;
+    };
+
     security = {
       enable = true;
       gnupg.enable = true;
