@@ -17,6 +17,8 @@
       ../../modules/applications/options.nix
       ../../modules/applications/docker.nix
       ./applications.nix
+      ./maintenance.nix
+      ../../modules/system/maintenance.nix
       ../../modules/hyprland.nix
     ];
 
