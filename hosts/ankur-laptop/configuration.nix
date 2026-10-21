@@ -7,6 +7,7 @@
 {
   imports =
     [
+    ./social.nix
       ./gpu.nix # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ./shell-fish.nix
