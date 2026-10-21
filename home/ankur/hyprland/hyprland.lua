@@ -281,6 +281,7 @@ end
 
 -- Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
 bind_exec(mainMod .. " + SHIFT + R", "hyprctl reload")
+bind_exec(mainMod .. " + SHIFT + E", "nwg-bar -i 72")
 if app_enabled.kitty and app_enabled.fish and app_enabled.zellij then
     bind_exec(mainMod .. " + code:36", "kitty -e fish -c 'zellij'")
 end -- 36 = Enter
@@ -289,7 +290,6 @@ if app_enabled.kitty and app_enabled.fish and app_enabled.yazi then
 end         -- 36 = Enter
 bind_app("kitty", mainMod .. " + T", "kitty")
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-bind_app("powerMenu", mainMod .. " + SHIFT + E", "nwgbar")
 bind_app("thunar", mainMod .. " + SHIFT + N", "thunar")
 hl.bind(mainMod .. " + SHIFT + code:65", hl.dsp.window.float({ action = "toggle" }))
 bind_app("wofi", "SUPER + D", "pkill wofi || wofi --normal-window --show drun --allow-images", { release = true })
