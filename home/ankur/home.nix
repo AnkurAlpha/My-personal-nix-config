@@ -19,6 +19,7 @@
   # Personal Fish abbreviations
   imports = [
   ./fish.nix
+  ./shell/default.nix
   ./git.nix
   ./gpg.nix
   ./hyprland

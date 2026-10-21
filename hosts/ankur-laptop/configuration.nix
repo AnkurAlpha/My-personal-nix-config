@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./shell-fish.nix
       ../../modules/applications/options.nix
       ../../modules/applications/docker.nix
       ./applications.nix

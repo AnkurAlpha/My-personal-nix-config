@@ -1,0 +1,5 @@
+{
+  "logo": {"source": "nixos_small"},
+  "display": {"separator": "    "},
+  "modules": ["title", "separator", "os", "host", "kernel", "uptime", "packages", "shell", "terminal", "cpu", "gpu", "memory"]
+}
