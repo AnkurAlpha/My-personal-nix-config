@@ -47,7 +47,7 @@
             home-manager.useUserPackages = true;
 
             # Nixvim extends Home Manager with programs.nixvim.
-            home-manager.sharedModules = [ nixvim.homeModules.nixvim ];
+            home-manager.sharedModules = [ nixvim.homeModules.nixvim ./home/ankur/hyprland/nwg-bar.nix ];
             home-manager.extraSpecialArgs = {
                 fimloomSrc = fimloom;
                 smoothcursorSrc = smoothcursor;
