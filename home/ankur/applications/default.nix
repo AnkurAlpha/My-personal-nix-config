@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./media.nix
     ./social.nix
     ./development.nix
     ./neovim

@@ -7,6 +7,7 @@
 {
   imports =
     [
+    ./media.nix
     ./social.nix
       ./gpu.nix # Include the results of the hardware scan.
       ./hardware-configuration.nix
