@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+      ./gaming.nix
       ./browsers.nix
     ./media.nix
     ./social.nix
