@@ -27,5 +27,6 @@
   ./fonts.nix
   ./theme.nix
   ./applications
+  ./applications/development/direnv.nix
 ];
 }
