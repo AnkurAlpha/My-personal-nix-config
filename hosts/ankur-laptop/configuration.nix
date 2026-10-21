@@ -7,6 +7,7 @@
 {
   imports =
     [
+      ./browsers.nix
     ./media.nix
     ./social.nix
       ./gpu.nix # Include the results of the hardware scan.
