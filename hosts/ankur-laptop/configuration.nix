@@ -7,6 +7,8 @@
 {
   imports =
     [
+    ./qt-appearance.nix
+    ../../modules/system/qt-appearance-options.nix
     ./desktop-customization.nix
     ../../modules/system/desktop-customization.nix
     ./security-privacy.nix

@@ -18,6 +18,7 @@
 
   # Personal Fish abbreviations
   imports = [
+    ./qt-appearance.nix
     ./desktop-customization.nix
   ./fish.nix
   ./shell/default.nix
