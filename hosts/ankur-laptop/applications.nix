@@ -104,13 +104,13 @@
     office = {
       enable = true;
       libreoffice.enable = true;
-      onlyoffice.enable = false;
+      onlyoffice.enable = true;
       freeoffice.enable = false;
       okular.enable = true;
-      pdfarranger.enable = true;
-      xournalpp.enable = true;
+      pdfarranger.enable = false;
+      xournalpp.enable = false;
       poppler.enable = true;
-      hunspell.enable = true;
+      hunspell.enable = false;
       zathura.enable = false;
       papers.enable = false;
       qpdf.enable = false;
