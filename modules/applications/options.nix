@@ -16,6 +16,7 @@ in {
     utilities = category "utilities" [ "thunar" "geany" "gparted" "meld" "joplin" "galculator" "emote" "yad" "swappy" "kate" ];
     systemTools = category "systemTools" [ "btop" "nvtop" "iotop" "powertop" "gdu" "duf" "dust" "ncdu" "filelight" "gnomeDisks" "smartmontools" "lmSensors" "lshw" "pciutils" "usbutils" "lsof" "nixTree" "nvd" "nixOutputMonitor" ];
 
+    office = category "office" [ "libreoffice" "onlyoffice" "freeoffice" "okular" "pdfarranger" "xournalpp" "poppler" "hunspell" "zathura" "papers" "qpdf" "pandoc" "tesseract" "foliate" ];
     security = category "security" [ "gnupg" "pass" "gpgAgent" ];
     appearance = category "appearance" [ "fonts" "theme" ];
   };

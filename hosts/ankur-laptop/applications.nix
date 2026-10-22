@@ -101,6 +101,23 @@
       nixOutputMonitor.enable = false;
     };
 
+    office = {
+      enable = true;
+      libreoffice.enable = true;
+      onlyoffice.enable = false;
+      freeoffice.enable = false;
+      okular.enable = true;
+      pdfarranger.enable = true;
+      xournalpp.enable = true;
+      poppler.enable = true;
+      hunspell.enable = true;
+      zathura.enable = false;
+      papers.enable = false;
+      qpdf.enable = false;
+      pandoc.enable = false;
+      tesseract.enable = false;
+      foliate.enable = false;
+    };
     security = {
       enable = true;
       gnupg.enable = true;

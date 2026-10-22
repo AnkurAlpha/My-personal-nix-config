@@ -13,6 +13,7 @@
     ./utilities.nix
     ./system-tools.nix
 
+    ./office.nix
     ./security.nix
   ];
 }
