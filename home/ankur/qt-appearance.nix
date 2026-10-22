@@ -16,6 +16,8 @@ let
 in
 {
   config = lib.mkIf useQt {
+    # Theme files from Garuda, stored declaratively in this repository.
+    xdg.configFile."Kvantum/Sweet".source = ./themes/garuda-exact-kvantum/Sweet;
     qt = {
       enable = true;
       # Home Manager installs qt5ct and qt6ct and exports the appropriate
@@ -29,7 +31,7 @@ in
         # KvDark ships with the Kvantum engine; avoid KDE/Plasma integration.
         # Disable compositing in Kvantum to avoid a known Qt6/Wayland issue.
         settings.General = {
-          theme = "KvDark";
+          theme = "Sweet";
           composite = false;
         };
       };

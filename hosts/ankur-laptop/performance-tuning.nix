@@ -14,7 +14,7 @@
 
     memory = {
       zram.enable = true;
-      zramPercent = 25; # inert until memory.zram.enable = true
+      zramPercent = 90; # inert until memory.zram.enable = true
       lowSwappiness.enable = false;
       cachePressure.enable = false;
       earlyoom.enable = false;
@@ -28,4 +28,6 @@
       stressNg.enable = false;
     };
   };
+  # Garuda-style compressed swap (leave other performance settings unchanged).
+  boot.kernel.sysctl."vm.swappiness" = 180;
 }
