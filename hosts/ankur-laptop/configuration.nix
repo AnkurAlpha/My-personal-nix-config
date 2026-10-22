@@ -12,6 +12,8 @@
     ./media.nix
     ./social.nix
       ./gpu.nix # Include the results of the hardware scan.
+      ./nixos-updates.nix
+      ../../modules/system/nixos-updates.nix
       ./power-battery.nix
       ../../modules/system/power-battery.nix
       ./hardware-configuration.nix
