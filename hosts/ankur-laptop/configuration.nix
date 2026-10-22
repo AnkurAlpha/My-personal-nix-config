@@ -7,6 +7,8 @@
 {
   imports =
     [
+    ./printing-peripherals.nix
+    ../../modules/system/printing-peripherals.nix
     ./storage-filesystems.nix
     ../../modules/system/storage-filesystems.nix
     ./qt-appearance.nix
