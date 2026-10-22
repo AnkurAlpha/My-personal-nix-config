@@ -3,7 +3,7 @@
 { ... }:
 {
   my.system.performanceTuning = {
-    enable = false;
+    enable = true;
 
     diagnostics.enable = false;
 
@@ -13,7 +13,7 @@
     };
 
     memory = {
-      zram.enable = false;
+      zram.enable = true;
       zramPercent = 25; # inert until memory.zram.enable = true
       lowSwappiness.enable = false;
       cachePressure.enable = false;
