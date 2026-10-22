@@ -7,6 +7,8 @@
 {
   imports =
     [
+    ./storage-filesystems.nix
+    ../../modules/system/storage-filesystems.nix
     ./qt-appearance.nix
     ../../modules/system/qt-appearance-options.nix
     ./desktop-customization.nix

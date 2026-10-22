@@ -18,6 +18,7 @@
 
   # Personal Fish abbreviations
   imports = [
+    ./storage-filesystems.nix
     ./qt-appearance.nix
     ./desktop-customization.nix
   ./fish.nix
