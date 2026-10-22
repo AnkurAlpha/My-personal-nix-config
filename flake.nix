@@ -67,6 +67,11 @@
 
         # Temporary alias for the existing hostname
         nixos = ankurLaptop;
+        # Independent minimal ISO: never imports the laptop hardware or Home Manager.
+        ankur-installer-iso = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./hosts/installer-iso/default.nix ];
+        };
       };
     };
 }

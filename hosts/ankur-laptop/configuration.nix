@@ -12,6 +12,8 @@
     ./media.nix
     ./social.nix
       ./gpu.nix # Include the results of the hardware scan.
+      ./multi-host.nix
+      ../../modules/system/multi-host.nix
       ./nixos-updates.nix
       ../../modules/system/nixos-updates.nix
       ./power-battery.nix

@@ -1,0 +1,27 @@
+# Copy to hosts/NEW_HOST/configuration.nix. This is a TEMPLATE, not imported.
+# Generate NEW hardware-configuration.nix on the target machine before installing.
+{ ... }: {
+  imports = [
+    ./hardware-configuration.nix
+    ../../modules/profiles/portable.nix
+  ];
+  networking.hostName = "NEW_HOST";  # replace with an actual hostname
+  networking.networkmanager.enable = true;
+  my.profiles.portable = {
+    enable = true;
+    packages.git.enable = true;
+    packages.curl.enable = true;
+    packages.vim.enable = true;
+    packages.htop.enable = false;
+  };
+  users.users.ankur = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" "networkmanager" ];
+  };
+  # Choose a bootloader and set user credentials for THIS machine explicitly.
+  # Example for UEFI ONLY (enable after verifying hardware/EFI mount):
+  # boot.loader.systemd-boot.enable = true;
+  # boot.loader.efi.canTouchEfiVariables = true;
+  # Set this to the ORIGINAL NixOS install version for the new machine.
+  system.stateVersion = "26.05";
+}
