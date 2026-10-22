@@ -12,6 +12,8 @@
     ./media.nix
     ./social.nix
       ./gpu.nix # Include the results of the hardware scan.
+      ./power-battery.nix
+      ../../modules/system/power-battery.nix
       ./hardware-configuration.nix
       ./shell-fish.nix
       ../../modules/applications/options.nix
