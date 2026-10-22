@@ -18,6 +18,7 @@
 
   # Personal Fish abbreviations
   imports = [
+    ./desktop-customization.nix
   ./fish.nix
   ./shell/default.nix
   ./git.nix

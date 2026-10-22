@@ -7,6 +7,8 @@
 {
   imports =
     [
+    ./desktop-customization.nix
+    ../../modules/system/desktop-customization.nix
     ./security-privacy.nix
     ../../modules/system/security-privacy.nix
       ./gaming.nix
