@@ -19,6 +19,7 @@ in
     (lib.mkIf cfg.kwallet.disablePam {
       security.pam.services.login.kwallet.enable = lib.mkForce false;
       security.pam.services.sddm.kwallet.enable = lib.mkForce false;
+      security.pam.services.kde.kwallet.enable = lib.mkForce false;
     })
   ]);
 }
