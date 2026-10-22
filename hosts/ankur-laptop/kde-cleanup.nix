@@ -5,6 +5,6 @@
     enable = true;
     plasma.disable = true;            # Remove Plasma session and its auto-installed stack
     kwallet.disablePam = true;        # No PAM KWallet autounlock
-    kwallet.disableForUser = true;    # Home Manager writes ~/.config/kwalletrc
+    kwallet.disableForUser = false;    # Home Manager writes ~/.config/kwalletrc
   };
 }
