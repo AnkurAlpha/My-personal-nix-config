@@ -30,5 +30,6 @@
   ./audio-bluetooth.nix
   ./applications
   ./applications/development/direnv.nix
+  ./development-environments.nix
 ];
 }

@@ -62,6 +62,12 @@
       };
     in
     {
+      # Flake-pinned isolated dev shells; host services and GPU are unchanged.
+      devShells.x86_64-linux = import ./modules/development/dev-shells.nix {
+        inherit nixpkgs;
+        settings = import ./hosts/ankur-laptop/dev-environments.nix;
+      };
+
       nixosConfigurations = {
         ankur-laptop = ankurLaptop;
 
