@@ -63,7 +63,7 @@
     };
     utilities = {
       enable = true;
-      thunar.enable = false;
+      thunar.enable = true;
       geany.enable = false;
       gparted.enable = true;
       meld.enable = true;
