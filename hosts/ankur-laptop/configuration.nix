@@ -7,6 +7,8 @@
 {
   imports =
     [
+    ./security-privacy.nix
+    ../../modules/system/security-privacy.nix
       ./gaming.nix
       ./browsers.nix
     ./media.nix
