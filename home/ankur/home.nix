@@ -27,6 +27,7 @@
   ./fonts.nix
   ./theme.nix
   ./kde-cleanup.nix
+  ./audio-bluetooth.nix
   ./applications
   ./applications/development/direnv.nix
 ];

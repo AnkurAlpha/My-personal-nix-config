@@ -21,6 +21,8 @@
       ../../modules/system/kde-cleanup.nix
       ./networking.nix
       ../../modules/system/networking.nix
+      ./audio-bluetooth.nix
+      ../../modules/system/audio-bluetooth.nix
       ./maintenance.nix
       ../../modules/system/maintenance.nix
       ../../modules/hyprland.nix
