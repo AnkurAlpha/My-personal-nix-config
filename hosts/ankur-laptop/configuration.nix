@@ -17,6 +17,8 @@
       ../../modules/applications/options.nix
       ../../modules/applications/docker.nix
       ./applications.nix
+      ./kde-cleanup.nix
+      ../../modules/system/kde-cleanup.nix
       ./networking.nix
       ../../modules/system/networking.nix
       ./maintenance.nix

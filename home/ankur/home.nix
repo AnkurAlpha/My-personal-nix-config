@@ -26,6 +26,7 @@
   ./zellij.nix
   ./fonts.nix
   ./theme.nix
+  ./kde-cleanup.nix
   ./applications
   ./applications/development/direnv.nix
 ];
