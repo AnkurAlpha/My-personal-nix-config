@@ -6,39 +6,22 @@ let
       (map (name: lib.attrByPath [ name ] null pkgs.vimPlugins) names);
 in
 {
-  plugins = {
-    # Mini.map: Nixvim owns setup, size, Braille encoding and integrations.
-    mini-map = {
-      enable = true;
-      settings = {
-        integrations = [
-          (lib.nixvim.mkRaw ''require("mini.map").gen_integration.builtin_search()'')
-          (lib.nixvim.mkRaw ''
-            require("mini.map").gen_integration.diagnostic({
-              error = "DiagnosticError",
-              warn = "DiagnosticWarn",
-              info = "DiagnosticInfo",
-              hint = "DiagnosticHint",
-            })
-          '')
-        ];
-
-        symbols = {
-          encode = lib.nixvim.mkRaw ''require("mini.map").gen_encode_symbols.dot("4x2")'';
-          scroll_line = "▏";
-          scroll_view = "┃";
-        };
-
-        window = {
-          side = "right";
-          width = 10;
-          winblend = 0;
-          focusable = false;
-          show_integration_count = false;
-        };
-      };
+  # NeoMinimap reads vim.g.neominimap before its startup plugin is loaded.
+  # A true split (not a float) reserves editor width on the right.
+  globals.neominimap = {
+    auto_enable = true;
+    layout = "split";
+    split = {
+      minimap_width = 12;
+      direction = "right";
+      fix_width = true;
+      persist = true;
     };
+    exclude_filetypes = [ "help" "bigfile" "NvimTree" ];
+  };
 
+  plugins = {
+    # Floating mini.map retired in favor of a separate NeoMinimap split.
     lspconfig.enable = true;
     telescope.enable = true;
     treesitter = {
@@ -179,53 +162,8 @@ in
     };
   };
 
-  # Nixvim highlight declarations, rather than runtime imperative Lua.
-  highlight = {
-    MiniMapNormal = {
-      fg = "#f6c177";
-      bg = "NONE";
-    };
-    MiniMapSymbolLine = {
-      fg = "#ffb86c";
-      bold = true;
-    };
-    MiniMapSymbolView = {
-      fg = "#ffd166";
-      bold = true;
-    };
-    MiniMapSymbolCount = {
-      fg = "#ff9e64";
-      bold = true;
-    };
-  };
-
-  # Open the minimap on ordinary named files, not dashboard/special buffers.
-  autoCmd = [
-    {
-      event = [ "VimEnter" "BufEnter" ];
-      desc = "Open mini.map automatically for normal files";
-      callback = lib.nixvim.mkRaw ''
-        function(event)
-          local buf = event.buf
-          if not buf or buf == 0 then
-            buf = vim.api.nvim_get_current_buf()
-          end
-          if not vim.api.nvim_buf_is_valid(buf) then return end
-          if vim.bo[buf].buftype ~= "" then return end
-          if vim.api.nvim_buf_get_name(buf) == "" then return end
-
-          vim.schedule(function()
-            if vim.api.nvim_buf_is_valid(buf)
-                and vim.api.nvim_get_current_buf() == buf
-                and vim.bo[buf].buftype == "" then
-              require("mini.map").open()
-            end
-          end)
-        end
-      '';
-    }
-  ];
-
+  # NeoMinimap uses its own highlight groups.
+  # Old mini.map highlights and autocmds have been removed.
   # Retain the existing Nixpkgs-installed plugins.
   extraPlugins = available [
     "plenary-nvim"

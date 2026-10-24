@@ -58,6 +58,23 @@
         "type": "github"
       }
     },
+    "neominimap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775964467,
+        "narHash": "sha256-EcV/mdleyopQsJ/t/Whl6Yf/2ORb9rnhHuc2Ue1E1Bw=",
+        "owner": "Isrothy",
+        "repo": "neominimap.nvim",
+        "rev": "0676085d898019f06044923934e38663f5efa290",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Isrothy",
+        "ref": "v3.16.0",
+        "repo": "neominimap.nvim",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1790635395,
@@ -131,6 +148,7 @@
       "inputs": {
         "fimloom": "fimloom",
         "home-manager": "home-manager",
+        "neominimap": "neominimap",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
         "nvimEmmet": "nvimEmmet",

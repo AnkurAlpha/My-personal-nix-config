@@ -1,4 +1,4 @@
-{ lib, pkgs, osConfig, fimloomSrc, config, smoothcursorSrc, nvimEmmetSrc, vimReactSnippetsSrc, ... }:
+{ lib, pkgs, osConfig, fimloomSrc, config, smoothcursorSrc, neominimapSrc, nvimEmmetSrc, vimReactSnippetsSrc, ... }:
 let
 active = osConfig.my.apps.development.enable && osConfig.my.apps.development.neovim.enable;
 fim = config.my.neovim.fimloom;
@@ -11,6 +11,11 @@ smoothcursorPlugin = pkgs.vimUtils.buildVimPlugin {
     pname = "SmoothCursor.nvim";
     version = "garuda-pinned";
     src = smoothcursorSrc;
+};
+neoMinimapPlugin = pkgs.vimUtils.buildVimPlugin {
+    pname = "neominimap.nvim";
+    version = "3.16.0";
+    src = neominimapSrc;
 };
 in
 {
@@ -48,7 +53,7 @@ in
 
             extraPlugins =
                 (lib.optionals fim.enable [ vimPlugin ])
-                ++ [ smoothcursorPlugin ];
+                ++ [ smoothcursorPlugin neoMinimapPlugin ];
 # FIMLoom bindings also disappear when its plugin switch is disabled.
             keymaps = lib.optionals fim.enable [
             { mode = "n"; key = "<leader>i"; action = "<cmd>FIMLoom start<CR>"; }

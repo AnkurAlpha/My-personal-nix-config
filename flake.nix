@@ -22,6 +22,11 @@
         url = "git+https://github.com/gen740/SmoothCursor.nvim?rev=12518b284e1e3f7c6c703b346815968e1620bee2";
         flake = false;
     };
+    # Pin NeoMinimap independently; the lockfile records an immutable revision.
+    neominimap = {
+      url = "github:Isrothy/neominimap.nvim/v3.16.0";
+      flake = false;
+    };
     nvimEmmet = {
       url = "git+https://github.com/olrtg/nvim-emmet";
       flake = false;
@@ -32,7 +37,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nixvim, fimloom, smoothcursor, nvimEmmet, vimReactSnippets, ... }:
+  outputs = { self, nixpkgs, home-manager, nixvim, fimloom, smoothcursor, nvimEmmet, vimReactSnippets, neominimap, ... }:
     let
       ankurLaptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -51,6 +56,7 @@
             home-manager.extraSpecialArgs = {
                 fimloomSrc = fimloom;
                 smoothcursorSrc = smoothcursor;
+                neominimapSrc = neominimap;
                 nvimEmmetSrc = nvimEmmet;
                 vimReactSnippetsSrc = vimReactSnippets;
             };
