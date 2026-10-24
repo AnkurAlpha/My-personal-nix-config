@@ -13,7 +13,7 @@ in {
     multimedia = category "multimedia" [ "mpv" "vlc" "obs" "blender" "inkscape" ];
     desktop = category "desktop" [ "kitty" "fish" "zellij" "yazi" "waybar" "wofi" "mako" "wpaperd" "hyprlock" "hypridle" "hypridleAutostart" "dock" "drawer" "powerMenu" "networkApplet" "clipboard" "screenshots" "audio" "brightness" "systemMonitor" "notifications" "playerctl" "networkTraffic" "temperature" ];
     internet = category "internet" [ "firefox" "vivaldi" "thunderbird" "githubDesktop" "curl" "signal" ];
-    utilities = category "utilities" [ "thunar" "geany" "gparted" "meld" "joplin" "galculator" "emote" "yad" "swappy" "kate" ];
+    utilities = category "utilities" [ "thunar" "geany" "gparted" "meld" "joplin" "galculator" "emote" "yad" "swappy" "kate" "ytDlp"];
     systemTools = category "systemTools" [ "btop" "nvtop" "iotop" "powertop" "gdu" "duf" "dust" "ncdu" "filelight" "gnomeDisks" "smartmontools" "lmSensors" "lshw" "pciutils" "usbutils" "lsof" "nixTree" "nvd" "nixOutputMonitor" ];
 
     office = category "office" [ "libreoffice" "onlyoffice" "freeoffice" "okular" "pdfarranger" "xournalpp" "poppler" "hunspell" "zathura" "papers" "qpdf" "pandoc" "tesseract" "foliate" ];

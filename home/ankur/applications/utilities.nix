@@ -12,5 +12,6 @@ in {
     ++ add c.emote.enable [ pkgs.emote ]
     ++ add c.yad.enable [ pkgs.yad ]
     ++ add c.swappy.enable [ pkgs.swappy ]
-    ++ add c.kate.enable [ pkgs.kdePackages.kate ];
+    ++ add c.kate.enable [ pkgs.kdePackages.kate ]
+    ++ add c.ytDlp.enable [ pkgs.yt-dlp ];
 }

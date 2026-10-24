@@ -31,7 +31,7 @@ in
 
         window = {
           side = "right";
-          width = 12;
+          width = 10;
           winblend = 0;
           focusable = false;
           show_integration_count = false;

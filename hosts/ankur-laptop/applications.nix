@@ -73,6 +73,7 @@
       yad.enable = true;
       swappy.enable = false;
       kate.enable = false;
+      ytDlp.enable = true;
     };
     systemTools = {
       enable = true;
@@ -104,7 +105,7 @@
     office = {
       enable = true;
       libreoffice.enable = true;
-      onlyoffice.enable = true;
+      onlyoffice.enable = false;
       freeoffice.enable = false;
       okular.enable = true;
       pdfarranger.enable = false;
