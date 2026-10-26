@@ -18,6 +18,7 @@
 
   # Personal Fish abbreviations
   imports = [
+    ./hyprland/hyprsunset.nix
     ./storage-filesystems.nix
     ./qt-appearance.nix
     ./desktop-customization.nix

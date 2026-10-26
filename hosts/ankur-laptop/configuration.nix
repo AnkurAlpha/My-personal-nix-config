@@ -7,6 +7,8 @@
 {
   imports =
     [
+      ./session-appearance.nix
+      ../../modules/system/session-appearance.nix
     ./printing-peripherals.nix
     ../../modules/system/printing-peripherals.nix
     ./storage-filesystems.nix
