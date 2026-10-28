@@ -13,6 +13,7 @@
       node.enable = true;
       docker.enable = false;
       git.enable = true;
+      lazygit.enable = true;
       buildTools.enable = true;
       wget.enable = true;
       cowsay.enable = false;

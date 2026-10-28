@@ -10,6 +10,7 @@ in {
     ++ add c.java.enable [ pkgs.jdk21 ]
     ++ add c.node.enable [ pkgs.nodejs ]
     ++ add c.buildTools.enable [ pkgs.gnumake pkgs.cmake pkgs.pkg-config pkgs.ripgrep pkgs.fd ]
+    ++ add c.lazygit.enable [ pkgs.lazygit ]
     ++ add c.wget.enable [ pkgs.wget ]
     ++ add c.cowsay.enable [ pkgs.cowsay ];
 
