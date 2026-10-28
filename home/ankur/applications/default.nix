@@ -14,6 +14,7 @@
     ./system-tools.nix
 
     ./office.nix
+    ./academics.nix
     ./security.nix
   ];
 }

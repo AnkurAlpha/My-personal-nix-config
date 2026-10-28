@@ -120,6 +120,11 @@
       tesseract.enable = false;
       foliate.enable = false;
     };
+    academics = {
+      enable = true;
+      rstudio.enable = false;
+      matlab.enable = true;
+    };
     security = {
       enable = true;
       gnupg.enable = true;
