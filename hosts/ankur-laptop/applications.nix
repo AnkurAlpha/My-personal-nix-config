@@ -123,7 +123,7 @@
     academics = {
       enable = true;
       rstudio.enable = false;
-      matlab.enable = true;
+      matlab.enable = false;
     };
     security = {
       enable = true;
