@@ -19,6 +19,7 @@
       cowsay.enable = false;
     };
     multimedia = {
+      gwenview.enable = true;
       enable = true;
       mpv.enable = true;
       vlc.enable = false;

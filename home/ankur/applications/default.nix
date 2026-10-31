@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./gwenview.nix
       ./gaming.nix
       ./browsers.nix
     ./media.nix
