@@ -35,5 +35,6 @@
   ./applications
   ./applications/development/direnv.nix
   ./development-environments.nix
+  ./trash-cleanup.nix
 ];
 }
