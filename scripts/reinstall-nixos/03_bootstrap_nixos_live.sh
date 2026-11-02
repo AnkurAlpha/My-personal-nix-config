@@ -63,9 +63,7 @@ fi
 if grep -Rqs 'ankur-laptop' "$TARGET_REPO/hosts/nixos" "$TARGET_REPO/flake.nix"; then
   fatal 'Old hostname references remain. Fix repository and retry after checking staged files.'
 fi
-if ! grep -Rqs 'canTouchEfiVariables = false' "$TARGET_REPO/hosts/nixos"; then
-  fatal 'Missing explicit canTouchEfiVariables=false. Do not risk changing Garuda boot order.'
-fi
+# Migration-only safety: the evaluated flake option is checked below.
 info 'Generate filesystem/hardware configuration for the NEW Btrfs UUID'
 nixos-generate-config --root "$DEST"
 GENERATED=/mnt/etc/nixos/hardware-configuration.nix
