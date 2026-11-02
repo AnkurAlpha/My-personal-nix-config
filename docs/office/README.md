@@ -4,7 +4,7 @@ Integrated with the existing `my.apps` switches and Home Manager.
 
 ## Configuration
 
-Edit `hosts/ankur-laptop/applications.nix` under `my.apps.office`.
+Edit `hosts/nixos/applications.nix` under `my.apps.office`.
 Set `office.enable = false;` to disable all packages in this module.
 Each `office.<tool>.enable` can be toggled independently.
 
@@ -28,8 +28,8 @@ Use one category as the source of truth for those applications.
 
 ## Verification
 
-    nh os build ~/nixos-config -H ankur-laptop
-    nh os switch ~/nixos-config -H ankur-laptop
+    nh os build ~/nixos-config -H nixos
+    nh os switch ~/nixos-config -H nixos
     command -v libreoffice okular pdfarranger xournalpp pdftotext
 
 No change to default PDF/file associations is made, and nothing from

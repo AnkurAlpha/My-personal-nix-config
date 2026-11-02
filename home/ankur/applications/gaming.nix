@@ -1,5 +1,5 @@
 # MangoHud and a convenient offload command for Ankur's gaming apps.
-# Controlled by my.apps.gaming in hosts/ankur-laptop/gaming.nix.
+# Controlled by my.apps.gaming in hosts/nixos/gaming.nix.
 { lib, pkgs, osConfig, ... }:
 let
   gaming = osConfig.my.apps.gaming;

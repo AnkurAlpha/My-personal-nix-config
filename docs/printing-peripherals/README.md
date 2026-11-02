@@ -1,8 +1,8 @@
 # Printing & Peripherals (all new features disabled)
 
-- Host switches: `hosts/ankur-laptop/printing-peripherals.nix`
+- Host switches: `hosts/nixos/printing-peripherals.nix`
 - Options and implementation: `modules/system/printing-peripherals.nix`
-- **Important:** `hosts/ankur-laptop/configuration.nix` already enables CUPS. The
+- **Important:** `hosts/nixos/configuration.nix` already enables CUPS. The
   disabled `printing.cups.enable` flag does **not** disable that existing setting.
 - All newly introduced features are disabled until `my.system.printingPeripherals.enable`
   and the specific feature flag are both set to `true`.
@@ -40,8 +40,8 @@ Thunderbolt authorization should only be enabled when needed.
 After changing switches, build then switch:
 
 ```bash
-nh os build ~/nixos-config -H ankur-laptop
-nh os switch ~/nixos-config -H ankur-laptop
+nh os build ~/nixos-config -H nixos
+nh os switch ~/nixos-config -H nixos
 ```
 
 Neither this installer nor the module installs printer drivers for a specific

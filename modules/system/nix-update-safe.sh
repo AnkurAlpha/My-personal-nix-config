@@ -3,7 +3,7 @@
 # No background updates, auto-clean, firmware changes, or automatic reboot.
 set -Eeuo pipefail
 REPO="${NIX_UPDATE_REPO:-$HOME/nixos-config}"
-HOST="${NIX_UPDATE_HOST:-ankur-laptop}"
+HOST="${NIX_UPDATE_HOST:-nixos}"
 DIAGNOSTICS="${NIX_UPDATE_DIAGNOSTICS:-true}"
 SAFE_ALL="${NIX_UPDATE_SAFE_ALL:-true}"
 ALLOW_ALL="${NIX_UPDATE_ALL:-false}"
@@ -37,7 +37,7 @@ if [[ "$mode" == help || "$mode" == --help || "$mode" == -h ]]; then help_text; 
 for x in git nix nh jq python3; do command -v "$x" >/dev/null || die "Missing command $x"; done
 [[ -f "$REPO/flake.nix" && -f "$REPO/flake.lock" ]] || die "No flake found at $REPO"
 [[ "$(git -C "$REPO" rev-parse --show-toplevel 2>/dev/null)" == "$(cd "$REPO" && pwd -P)" ]] || die 'Repo must be Git root.'
-[[ "$HOST" == ankur-laptop ]] || die 'Unexpected host. Verify NIX_UPDATE_HOST.'
+[[ "$HOST" == nixos ]] || die 'Unexpected host. Verify NIX_UPDATE_HOST.'
 
 case "$mode" in
 status)

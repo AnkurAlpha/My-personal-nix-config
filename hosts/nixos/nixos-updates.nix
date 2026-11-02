@@ -3,7 +3,7 @@
   my.system.nixosUpdates = {
     enable = true;
     repoPath = "/home/ankur/nixos-config";
-    host = "ankur-laptop";
+    host = "nixos";
     cli.enable = true;
     diagnostics.enable = true;
     updates.safeAll.enable = true;             # safe set: Home Manager / Nixvim / editing inputs

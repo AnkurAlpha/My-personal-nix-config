@@ -43,7 +43,7 @@
         system = "x86_64-linux";
 
         modules = [
-          ./hosts/ankur-laptop/configuration.nix
+          ./hosts/nixos/configuration.nix
 
           home-manager.nixosModules.home-manager
 
@@ -71,11 +71,11 @@
       # Flake-pinned isolated dev shells; host services and GPU are unchanged.
       devShells.x86_64-linux = import ./modules/development/dev-shells.nix {
         inherit nixpkgs;
-        settings = import ./hosts/ankur-laptop/dev-environments.nix;
+        settings = import ./hosts/nixos/dev-environments.nix;
       };
 
       nixosConfigurations = {
-        ankur-laptop = ankurLaptop;
+        nixos = ankurLaptop;
 
         # Temporary alias for the existing hostname
         nixos = ankurLaptop;

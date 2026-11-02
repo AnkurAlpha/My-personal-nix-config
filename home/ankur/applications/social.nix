@@ -1,4 +1,4 @@
-# Social applications controlled by hosts/ankur-laptop/social.nix.
+# Social applications controlled by hosts/nixos/social.nix.
 { lib, pkgs, osConfig, ... }:
 let
   cfg = osConfig.my.apps.social;

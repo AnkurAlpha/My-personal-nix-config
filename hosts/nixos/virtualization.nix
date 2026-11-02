@@ -11,5 +11,5 @@
   };
 
   # Docker already exists at my.apps.development.docker.enable = false;
-  # in hosts/ankur-laptop/applications.nix. Keep using that single switch.
+  # in hosts/nixos/applications.nix. Keep using that single switch.
 }

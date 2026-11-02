@@ -1,13 +1,13 @@
 # Storage & Filesystems — disabled-by-default NixOS module
 
-All new options are OFF in `hosts/ankur-laptop/storage-filesystems.nix`.
+All new options are OFF in `hosts/nixos/storage-filesystems.nix`.
 `my.system.storageFilesystems.enable = true` is additionally required to use any
 individual switch. Importing this module does not change existing mounts or
 services, install tools, format disks, create snapshots, or start automounting.
 
 ## Existing mounts are intentionally preserved
 
-- `/` (ext4) and `/boot` (vfat) are declared in `hosts/ankur-laptop/hardware-configuration.nix`.
+- `/` (ext4) and `/boot` (vfat) are declared in `hosts/nixos/hardware-configuration.nix`.
 - `/mnt/garuda` (Btrfs, `subvolid=5`, `nofail`) is already declared in the host's `configuration.nix`.
 - Neither file is modified here, other than adding imports to `configuration.nix`.
 - Mounting Garuda, enabling Btrfs tools, and enabling scheduled Btrfs scrub are **different operations**. This module does not configure scheduled scrubs or write to Garuda.
@@ -26,7 +26,7 @@ services, install tools, format disks, create snapshots, or start automounting.
 - `removable.gvfs.enable`: GVfs daemon integration
 - `removable.udiskieAutomount.enable`: opt-in Home Manager Udiskie service and UDisks2
 
-To enable a tool, edit `hosts/ankur-laptop/storage-filesystems.nix`, set
+To enable a tool, edit `hosts/nixos/storage-filesystems.nix`, set
 `enable = true;`, then set an individual option to true. For example:
 
 ```nix
@@ -40,8 +40,8 @@ my.system.storageFilesystems = {
 Then run:
 
 ```sh
-nh os build ~/nixos-config -H ankur-laptop
-nh os switch ~/nixos-config -H ankur-laptop
+nh os build ~/nixos-config -H nixos
+nh os switch ~/nixos-config -H nixos
 ```
 
 If enabling Udiskie automount, ensure you want removable volumes mounted in

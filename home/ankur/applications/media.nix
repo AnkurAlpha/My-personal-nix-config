@@ -1,5 +1,5 @@
 # Media packages, managed per-user through Home Manager.
-# Switches are declared in hosts/ankur-laptop/media.nix.
+# Switches are declared in hosts/nixos/media.nix.
 { lib, pkgs, osConfig, ... }:
 let
   media = osConfig.my.apps.media;

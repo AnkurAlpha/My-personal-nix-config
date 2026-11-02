@@ -1,6 +1,6 @@
 { lib, pkgs, ... }:
 let
-  settings = import ../../hosts/ankur-laptop/dev-environments.nix;
+  settings = import ../../hosts/nixos/dev-environments.nix;
   helper = pkgs.writeShellApplication {
     name = "nix-dev";
     runtimeInputs = [ pkgs.nix ];

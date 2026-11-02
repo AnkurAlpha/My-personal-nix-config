@@ -4,7 +4,7 @@ let
   a = osConfig.my.apps;
   active = name: c.enable && c.${name}.enable;
   enabledLua = ''
-    -- Generated from hosts/ankur-laptop/applications.nix.
+    -- Generated from hosts/nixos/applications.nix.
     -- Do not edit these booleans in Lua; edit the declarative host switches instead.
     local app_enabled = {
       networkApplet = ${if active "networkApplet" then "true" else "false"},

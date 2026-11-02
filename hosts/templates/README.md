@@ -10,11 +10,11 @@ computer until you know its actual hardware, partitions and boot method.
 3. Create `hosts/NEW_HOST/` in your cloned Git repo; copy
    `new-host.nix.example` to `hosts/NEW_HOST/configuration.nix`.
 4. Copy the freshly generated `hardware-configuration.nix` into that host
-   directory. Never copy `hosts/ankur-laptop/hardware-configuration.nix`.
+   directory. Never copy `hosts/nixos/hardware-configuration.nix`.
 5. Adjust `networking.hostName`, `system.stateVersion`, bootloader,
    user credentials and host-specific packages for the new machine.
 6. Register a NEW attribute in `flake.nix` using this pattern, without
-   altering the existing `ankur-laptop` or `nixos` aliases:
+   altering the existing `nixos` or `nixos` aliases:
 
    NEW_HOST = nixpkgs.lib.nixosSystem {
      system = "x86_64-linux";

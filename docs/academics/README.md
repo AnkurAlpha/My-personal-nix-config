@@ -2,7 +2,7 @@
 
 ## Switches
 
-Edit `hosts/ankur-laptop/applications.nix`:
+Edit `hosts/nixos/applications.nix`:
 
 ```nix
 academics = {
@@ -54,8 +54,8 @@ command -v rstudio || echo 'RStudio is disabled'
 cd ~/nixos-config
 nix --log-format raw build --no-link \
   --option max-jobs 1 --option cores 2 \
-  ~/nixos-config#nixosConfigurations.ankur-laptop.config.system.build.toplevel
+  ~/nixos-config#nixosConfigurations.nixos.config.system.build.toplevel
 sudo -v
-sudo nixos-rebuild switch --flake ~/nixos-config#ankur-laptop \
+sudo nixos-rebuild switch --flake ~/nixos-config#nixos \
   --option max-jobs 1 --option cores 2
 ```

@@ -7,7 +7,7 @@ Your existing `home/ankur/theme.nix` still owns:
 
 This add-on creates:
 - `modules/system/qt-appearance-options.nix` — feature option declarations
-- `hosts/ankur-laptop/qt-appearance.nix` — per-feature switches
+- `hosts/nixos/qt-appearance.nix` — per-feature switches
 - `home/ankur/qt-appearance.nix` — Home Manager Qt5/Qt6 config
 
 New Qt configuration uses qt5ct/qt6ct, the BeautyLine icon theme, and
@@ -16,7 +16,7 @@ explicitly disabled to avoid some Hyprland/Qt6 crashes. This is not
 pixel-identical to GTK Sweet-Dark, but it gives Qt apps a consistent dark look.
 No Plasma/KWallet modules are enabled.
 
-Switches (`hosts/ankur-laptop/qt-appearance.nix`):
+Switches (`hosts/nixos/qt-appearance.nix`):
 - `my.system.qtAppearance.enable` — master; false disables all added Qt theming
 - `qt5Settings.enable` — declarative Qt5 appearance config
 - `qt6Settings.enable` — declarative Qt6 appearance config

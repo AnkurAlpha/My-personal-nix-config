@@ -1,6 +1,6 @@
 # Desktop Customization (opt-in tools, no changes to desktop by default)
 
-**All features are off** in `hosts/ankur-laptop/desktop-customization.nix`.
+**All features are off** in `hosts/nixos/desktop-customization.nix`.
 The master `enable` switch must also be true before any individual tool is added.
 
 This module **does not replace** the existing:
@@ -22,7 +22,7 @@ This module **does not replace** the existing:
 | `screenshotAnnotator` | `swappy` | Adds editor only, no hotkey or screenshot pipeline replacement |
 | `notificationCli` | `libnotify` | Adds `notify-send`, does not replace Mako |
 
-To enable a tool, edit `hosts/ankur-laptop/desktop-customization.nix`:
+To enable a tool, edit `hosts/nixos/desktop-customization.nix`:
 
 ```nix
 my.system.desktopCustomization = {
@@ -35,8 +35,8 @@ my.system.desktopCustomization = {
 Then apply with:
 
 ```sh
-nh os build ~/nixos-config -H ankur-laptop
-nh os switch ~/nixos-config -H ankur-laptop
+nh os build ~/nixos-config -H nixos
+nh os switch ~/nixos-config -H nixos
 ```
 
 No KDE Plasma/KWallet configuration is introduced. No auto-starting services,

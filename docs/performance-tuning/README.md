@@ -1,7 +1,7 @@
 # Performance Tuning (all new features disabled)
 
 Files:
-- `hosts/ankur-laptop/performance-tuning.nix` — individual switches
+- `hosts/nixos/performance-tuning.nix` — individual switches
 - `modules/system/performance-tuning.nix` — options and implementations
 
 All feature switches **and** `my.system.performanceTuning.enable` are false.
@@ -38,8 +38,8 @@ for performance. This module intentionally provides no such switches.
 To apply future changes:
 
 ```bash
-nh os build ~/nixos-config -H ankur-laptop
-nh os switch ~/nixos-config -H ankur-laptop
+nh os build ~/nixos-config -H nixos
+nh os switch ~/nixos-config -H nixos
 ```
 
 `/mnt/garuda` is only inspected by the installer; no files there are modified.

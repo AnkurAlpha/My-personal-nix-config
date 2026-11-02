@@ -3,7 +3,7 @@ let
   c = osConfig.my.apps.systemTools;
   add = on: package: lib.optional (c.enable && on) package;
 in {
-  # Per-app switches are configured in hosts/ankur-laptop/applications.nix.
+  # Per-app switches are configured in hosts/nixos/applications.nix.
   # This module does not enable services, automatic garbage collection,
   # firmware changes, partition operations, or privileged monitoring.
   home.packages =

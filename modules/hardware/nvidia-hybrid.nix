@@ -1,5 +1,5 @@
 # RTX 5050 Laptop: integrated GPU for desktop + NVIDIA via PRIME offload.
-# Enable/disable in hosts/ankur-laptop/gpu.nix.
+# Enable/disable in hosts/nixos/gpu.nix.
 { config, lib, ... }:
 let
   cfg = config.my.hardware.gpu;

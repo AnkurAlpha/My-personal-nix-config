@@ -1,6 +1,6 @@
 # Security & Privacy (configuration-only)
 
-All features are disabled in `hosts/ankur-laptop/security-privacy.nix`.
+All features are disabled in `hosts/nixos/security-privacy.nix`.
 Importing this module changes **no** security service, firewall rule, SSH setting,
 package set or credentials. Existing NixOS defaults and settings remain in place.
 USBGuard is intentionally excluded from this module.
@@ -9,8 +9,8 @@ To opt into a feature later, edit the host file, set the master `enable = true;`
 and set the desired feature's switch to `true`, then build and switch:
 
 ```bash
-nh os build ~/nixos-config -H ankur-laptop
-nh os switch ~/nixos-config -H ankur-laptop
+nh os build ~/nixos-config -H nixos
+nh os switch ~/nixos-config -H nixos
 ```
 
 - `apparmor`: system MAC; may need reboot for full activation.

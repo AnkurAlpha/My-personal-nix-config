@@ -20,7 +20,7 @@ in
   options.my.system.nixosUpdates = {
     enable = lib.mkEnableOption "safe manual NixOS flake updates";
     repoPath = lib.mkOption { type = lib.types.str; default = "/home/ankur/nixos-config"; description = "Local Git flake path"; };
-    host = lib.mkOption { type = lib.types.str; default = "ankur-laptop"; description = "NixOS flake host"; };
+    host = lib.mkOption { type = lib.types.str; default = "nixos"; description = "NixOS flake host"; };
     cli.enable = lib.mkEnableOption "install nix-update-safe utility";
     diagnostics.enable = lib.mkEnableOption "read-only nix-update-safe status diagnostics";
     updates.safeAll.enable = lib.mkEnableOption "allow safe-all (excludes FIMLoom and pinned inputs)";

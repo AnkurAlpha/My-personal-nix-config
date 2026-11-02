@@ -6,7 +6,7 @@ language shells without changing existing Fish, Direnv or nix-direnv settings.
 
 ## Switches
 
-Edit `hosts/ankur-laptop/dev-environments.nix`. The top-level `enable` flag
+Edit `hosts/nixos/dev-environments.nix`. The top-level `enable` flag
 disables all new development shells. Every language has its own `.enable` flag.
 `helper.enable` toggles the Home Manager `nix-dev` command.
 
