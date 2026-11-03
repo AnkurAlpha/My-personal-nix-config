@@ -32,6 +32,7 @@
       ../../modules/system/multi-host.nix
       ./nixos-updates.nix
       ../../modules/system/nixos-updates.nix
+      ./garuda-extras.nix
       ./performance-tuning.nix
       ../../modules/system/performance-tuning.nix
       ./power-battery.nix
