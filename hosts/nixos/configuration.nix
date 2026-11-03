@@ -5,9 +5,10 @@
 { config, pkgs, ... }:
 
 {
-  services.displayManager.sddm.theme = pkgs.lib.mkForce "elarun";
+  services.displayManager.sddm.theme = pkgs.lib.mkForce "sddm-astronaut-theme";
   imports =
     [
+      ./sddm-astronaut.nix
       ./session-appearance.nix
       ../../modules/system/session-appearance.nix
     ./printing-peripherals.nix
