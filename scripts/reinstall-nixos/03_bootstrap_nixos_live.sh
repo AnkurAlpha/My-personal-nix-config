@@ -23,13 +23,15 @@ done
 for point in /mnt /mnt/home /mnt/nix /mnt/var/log /mnt/boot; do
   mountpoint -q "$point" || fatal "Expected mounted subvolume/filesystem: $point"
 done
-root_id=$(lsblk -dn -o MAJ:MIN "$ROOT_DEVICE" | tr -d '[:space:]')
-boot_id=$(lsblk -dn -o MAJ:MIN "$BOOT_DEVICE" | tr -d '[:space:]')
+# Compare actual mount SOURCE to the disk devices, not MAJ:MIN.
+# Btrfs subvolumes have a virtual MAJ:MIN (e.g. 0:66), unlike p7 (259:6).
 for point in /mnt /mnt/home /mnt/nix /mnt/var/log; do
-  actual=$(findmnt -n -o MAJ:MIN -T "$point" | tr -d '[:space:]')
-  [[ "$actual" == "$root_id" ]] || fatal "$point is not on NixOS p7 (found $actual, expected $root_id)"
+  actual=$(findmnt -n -o SOURCE --mountpoint "$point")
+  device=${actual%%\[*}
+  [[ "$(readlink -f "$device")" == "$(readlink -f "$ROOT_DEVICE")" ]] || fatal "$point is not on NixOS p7 (found $actual)"
 done
-[[ "$(findmnt -n -o MAJ:MIN -T /mnt/boot | tr -d '[:space:]')" == "$boot_id" ]] || fatal '/mnt/boot is not NIXBOOT p6.'
+boot_source=$(findmnt -n -o SOURCE --mountpoint /mnt/boot)
+[[ "$(readlink -f "$boot_source")" == "$(readlink -f "$BOOT_DEVICE")" ]] || fatal '/mnt/boot is not NIXBOOT p6.'
 for pair in '/mnt @root' '/mnt/home @home' '/mnt/nix @nix' '/mnt/var/log @log'; do
   read -r mnt subvol <<< "$pair"
   opts=$(findmnt -no OPTIONS -T "$mnt")
@@ -43,7 +45,7 @@ if [[ -e "$TARGET_REPO" && ! -d "$TARGET_REPO/.git" ]]; then
 fi
 info 'Preflight summary (read carefully)'
 lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINTS /dev/nvme0n1
-findmnt /mnt /mnt/home /mnt/nix /mnt/var/log /mnt/boot
+findmnt -R /mnt
 printf '\nGaruda p5 and Windows p1-p4 will not be formatted or changed.\n'
 info 'Clone exact GitHub configuration with the new nixos host'
 mkdir -p /mnt/home/ankur
@@ -80,6 +82,9 @@ if ! grep -Eq '(\./hardware-configuration\.nix|hardware-configuration\.nix)' "$T
   fatal 'Cannot verify hardware-configuration.nix import in host config. Do not install yet.'
 fi
 cp "$GENERATED" "$HARDWARE"
+# NIXBOOT_RANDOM_SEED_MASKS_HARDENED: FAT32 /boot must not expose systemd-boot random seed.
+sed -i 's/"fmask=0022" "dmask=0022"/"fmask=0077" "dmask=0077"/' "$HARDWARE"
+grep -Fq '"fmask=0077" "dmask=0077"' "$HARDWARE" || fatal 'Expected restrictive NIXBOOT FAT32 mount masks are missing.'
 # Stage updated hardware file so local Git-backed flakes see it, without pushing changes.
 if command -v git >/dev/null; then
   git -C "$TARGET_REPO" add hosts/nixos/hardware-configuration.nix

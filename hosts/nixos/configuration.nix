@@ -5,6 +5,7 @@
 { config, pkgs, ... }:
 
 {
+  services.displayManager.sddm.theme = pkgs.lib.mkForce "elarun";
   imports =
     [
       ./session-appearance.nix
