@@ -35,6 +35,7 @@
       ../../modules/system/performance-tuning.nix
       ./power-battery.nix
       ../../modules/system/power-battery.nix
+      ./btrfs-maintenance.nix
       ./hardware-configuration.nix
       ./shell-fish.nix
       ../../modules/applications/options.nix
