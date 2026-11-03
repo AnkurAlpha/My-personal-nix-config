@@ -33,6 +33,8 @@
       ./nixos-updates.nix
       ../../modules/system/nixos-updates.nix
       ./garuda-extras.nix
+      ./garuda-system-goodies.nix
+      ./garuda-terminal-goodies.nix
       ./performance-tuning.nix
       ../../modules/system/performance-tuning.nix
       ./power-battery.nix
