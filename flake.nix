@@ -74,6 +74,21 @@
         settings = import ./hosts/nixos/dev-environments.nix;
       };
 
+      # Standalone Home Manager for Garuda Linux.
+      # Does not modify NixOS, pacman, GRUB or system services.
+      homeConfigurations = {
+        "ankur@garuda" = home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
+
+          modules = [
+            ./hosts/garuda/home.nix
+          ];
+        };
+      };
+
       nixosConfigurations = {
         nixos = ankurLaptop;
 
