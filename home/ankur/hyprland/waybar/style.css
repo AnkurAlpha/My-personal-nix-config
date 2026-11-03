@@ -182,8 +182,25 @@ window#waybar {
    color:#d08770;
 }
 
-/* Garuda-inspired power mode accent; retain the rest of the existing bar theme. */
-#power-profiles-daemon { color: #cba6f7; }
-#power-profiles-daemon.performance { color: #fab387; }
-#power-profiles-daemon.balanced { color: #f9e2af; }
-#power-profiles-daemon.power-saver { color: #a6e3a1; }
+/* Power profiles: match Waybar's underlined status modules. */
+#power-profiles-daemon {
+    color: #cba6f7;
+    border-bottom: 3px solid #cba6f7;
+    padding: 0 8px;
+    margin: 0 4px;
+}
+
+#power-profiles-daemon.performance {
+    color: #fab387;
+    border-bottom-color: #fab387;
+}
+
+#power-profiles-daemon.balanced {
+    color: #f9e2af;
+    border-bottom-color: #f9e2af;
+}
+
+#power-profiles-daemon.power-saver {
+    color: #a6e3a1;
+    border-bottom-color: #a6e3a1;
+}
