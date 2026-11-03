@@ -8,14 +8,15 @@ let
     export NIX_FLEET_HOSTS=${lib.boolToString cfg.tools.hosts.enable}
     export NIX_FLEET_ISO=${lib.boolToString cfg.tools.isoBuilder.enable}
     export NIX_FLEET_TEMPLATE=${lib.boolToString cfg.tools.templateHelp.enable}
-    export PATH=${lib.escapeShellArg (lib.makeBinPath [ pkgs.nix pkgs.git pkgs.coreutils pkgs.findutils pkgs.util-linux pkgs.bash ])}:"$PATH"
+    export PATH=${lib.escapeShellArg (lib.makeBinPath [ pkgs.nix pkgs.git pkgs.python3 pkgs.coreutils pkgs.findutils pkgs.util-linux pkgs.bash ])}:"$PATH"
     exec ${pkgs.bash}/bin/bash ${./nix-fleet.sh} "$@"
   '';
 in
 {
+  imports = [ ../identity.nix ];
   options.my.system.multiHost = {
     enable = lib.mkEnableOption "safe multi-host tooling for this laptop";
-    repoPath = lib.mkOption { type = lib.types.str; default = "/home/ankur/nixos-config"; };
+    repoPath = lib.mkOption { type = lib.types.str; default = "${config.my.user.homeDirectory}/nixos-config"; };
     garudaMount = lib.mkOption { type = lib.types.str; default = "/mnt/garuda"; };
     tools.enable = lib.mkEnableOption "install the nix-fleet helper";
     tools.hosts.enable = lib.mkEnableOption "read-only list of flake NixOS hosts";
@@ -23,8 +24,8 @@ in
     tools.templateHelp.enable = lib.mkEnableOption "show the new-host template instructions";
     iso.outputDirectory = lib.mkOption {
       type = lib.types.str;
-      default = "/home/ankur/ISO";
-      description = "Directory for ISO result links, not the Git checkout or Garuda mount.";
+      default = "${config.my.user.homeDirectory}/ISO";
+      description = "Directory for real ISO copies, checksums and result links; outside the Git checkout or Garuda mount.";
     };
   };
   config = lib.mkIf cfg.enable {

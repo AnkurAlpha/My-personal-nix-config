@@ -7,7 +7,7 @@ in
     enable = lib.mkEnableOption "safe KDE Plasma and KWallet cleanup for Hyprland";
     plasma.disable = lib.mkEnableOption "disable the Plasma 6 desktop (retain Hyprland and SDDM)";
     kwallet.disablePam = lib.mkEnableOption "disable KWallet PAM integration at login";
-    kwallet.disableForUser = lib.mkEnableOption "turn off KWallet and KSecretD for ankur via Home Manager";
+    kwallet.disableForUser = lib.mkEnableOption "turn off KWallet and KSecretD for the selected account via Home Manager";
   };
 
   config = lib.mkIf cfg.enable (lib.mkMerge [

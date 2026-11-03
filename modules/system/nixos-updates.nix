@@ -17,9 +17,10 @@ let
   '';
 in
 {
+  imports = [ ../identity.nix ];
   options.my.system.nixosUpdates = {
     enable = lib.mkEnableOption "safe manual NixOS flake updates";
-    repoPath = lib.mkOption { type = lib.types.str; default = "/home/ankur/nixos-config"; description = "Local Git flake path"; };
+    repoPath = lib.mkOption { type = lib.types.str; default = "${config.my.user.homeDirectory}/nixos-config"; description = "Local Git flake path"; };
     host = lib.mkOption { type = lib.types.str; default = "nixos"; description = "NixOS flake host"; };
     cli.enable = lib.mkEnableOption "install nix-update-safe utility";
     diagnostics.enable = lib.mkEnableOption "read-only nix-update-safe status diagnostics";

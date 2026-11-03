@@ -33,6 +33,9 @@ let
       lib.all (a: a.assertion) c.assertions
       && builtins.elem "nvidia" c.services.xserver.videoDrivers == hasNvidia
       && c.hardware.nvidia.prime.offload.enable == hybrid
+      && c.my.user.name == "tester"
+      && c.my.user.homeDirectory == "/home/tester"
+      && !(c.users.users ? ankur)
       && c.hardware.nvidia.prime.sync.enable == false
       && !c.programs.steam.enable
       && !c.services.tlp.enable

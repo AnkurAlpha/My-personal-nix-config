@@ -5,12 +5,13 @@ repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$repo"
 [[ $# -eq 0 || ( $# -eq 1 && "$1" == --static ) ]] || { echo 'Usage: bash scripts/check.sh [--static]' >&2; exit 2; }
 python3 -m unittest discover -s tests -v
+python3 tests/check_embedded_shell.py
 mapfile -d '' shell_files < <(git ls-files -z -- '*.sh' 'home/ankur/hyprland/waybar/scripts/OCV')
 for file in "${shell_files[@]}"; do bash -n "$file"; done
 if command -v shellcheck >/dev/null; then
   # Existing UI helpers have style warnings; errors fail the repository check.
   shellcheck --severity=error "${shell_files[@]}"
-  shellcheck scripts/install.sh scripts/new-host.sh scripts/check.sh
+  shellcheck scripts/install.sh scripts/new-host.sh scripts/build-iso.sh scripts/check.sh
 else
   echo 'SKIP ShellCheck: not installed.'
 fi

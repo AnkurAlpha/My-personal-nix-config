@@ -1,12 +1,12 @@
-{ ... }: {
+{ config, ... }: {
   my.system.multiHost = {
     enable = true;
-    repoPath = "/home/ankur/nixos-config";
+    repoPath = "${config.my.user.homeDirectory}/nixos-config";
     garudaMount = "/mnt/garuda";
     tools.enable = true;
     tools.hosts.enable = true;
     tools.isoBuilder.enable = true;
     tools.templateHelp.enable = true;
-    iso.outputDirectory = "/home/ankur/ISO";
+    iso.outputDirectory = "${config.my.user.homeDirectory}/ISO";
   };
 }

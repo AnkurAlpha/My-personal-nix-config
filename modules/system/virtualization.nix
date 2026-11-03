@@ -3,6 +3,7 @@ let
   cfg = config.my.system.virtualization;
 in
 {
+  imports = [ ../identity.nix ];
   # No packages, services or group memberships are enabled merely by
   # importing this module. Every feature must be explicitly opted into.
   options.my.system.virtualization = {
@@ -35,7 +36,7 @@ in
     })
     (lib.mkIf cfg.qemuKvm.enable {
       virtualisation.libvirtd.enable = true;
-      users.users.ankur.extraGroups = [ "libvirtd" ];
+      users.users.${config.my.user.name}.extraGroups = [ "libvirtd" ];
     })
     (lib.mkIf cfg.virtManager.enable {
       programs.virt-manager.enable = true;

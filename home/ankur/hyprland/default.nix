@@ -1,4 +1,4 @@
-{ lib, osConfig, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
   c = osConfig.my.apps.desktop;
   a = osConfig.my.apps;
@@ -54,7 +54,11 @@ in {
   # The compositor itself remains enabled even if the desktop app group is off.
   xdg.configFile."hypr/hyprland.lua".text = enabledLua + builtins.readFile ./hyprland.lua;
   xdg.configFile."wpaperd/config.toml" = lib.mkIf (active "wpaperd") {
-    source = ./wpaperd/config.toml;
+    source = (pkgs.formats.toml {}).generate "wpaperd-config.toml" {
+      default = (builtins.fromTOML (builtins.readFile ./wpaperd/config.toml)).default // {
+        path = "${config.home.homeDirectory}/custom_wallpapers/photos";
+      };
+    };
   };
   xdg.configFile."nwg-dock-hyprland/style.css" = lib.mkIf (active "dock") {
     source = ./dock/style.css;

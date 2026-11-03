@@ -5,7 +5,7 @@ let
   hybrid = builtins.elem cfg.graphics [ "amd-nvidia" "intel-nvidia" ];
   nvidia = hybrid || cfg.graphics == "nvidia";
 in {
-  imports = [ ./portable.nix ../hardware/nvidia-hybrid.nix ];
+  imports = [ ../identity.nix ./portable.nix ../hardware/nvidia-hybrid.nix ];
   options.my.machine = {
     username = lib.mkOption { type = lib.types.strMatching "[a-z_][a-z0-9_-]*"; };
     desktop = lib.mkOption { type = lib.types.enum [ "minimal" "hyprland" ]; default = "minimal"; };
@@ -22,6 +22,7 @@ in {
   };
   config = lib.mkMerge [
     {
+      my.user.name = cfg.username;
       networking.networkmanager.enable = true;
       nix.settings.experimental-features = [ "nix-command" "flakes" ];
       my.profiles.portable = {
@@ -75,7 +76,7 @@ in {
         useUserPackages = true;
         users.${cfg.username} = {
           home.username = cfg.username;
-          home.homeDirectory = "/home/${cfg.username}";
+          home.homeDirectory = config.my.user.homeDirectory;
           home.stateVersion = config.system.stateVersion;
           programs.home-manager.enable = true;
           programs.kitty.enable = true;

@@ -1,7 +1,10 @@
 { lib, config, ... }:
 let c = config.my.apps.development;
 in {
-  virtualisation.docker.enable = c.enable && c.docker.enable;
-  users.users.ankur.extraGroups = lib.optionals (c.enable && c.docker.enable) [ "docker" ];
-  # docker group grants root-equivalent privilege. Log out/in after changing membership.
+  imports = [ ../identity.nix ];
+  config = lib.mkIf (c.enable && c.docker.enable) {
+    virtualisation.docker.enable = true;
+    users.users.${config.my.user.name}.extraGroups = [ "docker" ];
+    # docker group grants root-equivalent privilege. Log out/in after changes.
+  };
 }

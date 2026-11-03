@@ -6,7 +6,6 @@ DEST=/mnt
 ROOT_DEVICE=/dev/nvme0n1p7
 BOOT_DEVICE=/dev/nvme0n1p6
 REPO_URL=https://github.com/AnkurAlpha/My-personal-nix-config.git
-TARGET_REPO=/mnt/home/ankur/nixos-config
 HOST=nixos
 
 fatal() { echo "ERROR: $*" >&2; exit 1; }
@@ -16,6 +15,12 @@ command -v nixos-install >/dev/null || fatal 'This is not a NixOS installation e
 for cmd in lsblk findmnt nixos-generate-config nixos-enter nix; do
   command -v "$cmd" >/dev/null || fatal "Missing command: $cmd"
 done
+SOURCE_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+TARGET_USER="$(nix --extra-experimental-features 'nix-command flakes' eval --raw "$SOURCE_REPO#nixosConfigurations.$HOST.config.my.user.name")"
+[[ "$TARGET_USER" =~ ^[a-z_][a-z0-9_-]{0,30}$ && "$TARGET_USER" != root ]] || fatal 'Invalid configured regular username.'
+TARGET_HOME="$(nix --extra-experimental-features 'nix-command flakes' eval --raw "$SOURCE_REPO#nixosConfigurations.$HOST.config.my.user.homeDirectory")"
+[[ "$TARGET_HOME" == "/home/$TARGET_USER" ]] || fatal 'Legacy reinstall requires the regular /home/USER layout; use the universal workflow for another layout.'
+TARGET_REPO="/mnt$TARGET_HOME/nixos-config"
 [[ -b "$ROOT_DEVICE" && -b "$BOOT_DEVICE" ]] || fatal 'Expected p7 (NixOS) and p6 (NIXBOOT) block devices.'
 [[ "$(lsblk -dn -o FSTYPE "$ROOT_DEVICE" | tr -d '[:space:]')" == btrfs ]] || fatal 'p7 is not Btrfs. Do not autoformat; finish partitioning separately.'
 [[ "$(lsblk -bn -o SIZE "$ROOT_DEVICE" | tr -d '[:space:]')" -ge $((145 * 1024 * 1024 * 1024)) ]] || fatal 'p7 is below 145 GiB; not the requested 150/200 GiB NixOS layout.'
@@ -48,7 +53,7 @@ lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINTS /dev/nvme0n1
 findmnt -R /mnt
 printf '\nGaruda p5 and Windows p1-p4 will not be formatted or changed.\n'
 info 'Clone exact GitHub configuration with the new nixos host'
-mkdir -p /mnt/home/ankur
+mkdir -p "/mnt$TARGET_HOME"
 if [[ -d "$TARGET_REPO/.git" ]]; then
   echo 'Using existing target repo from a previous interrupted installation; not recloning.'
   if command -v git >/dev/null; then
@@ -61,7 +66,7 @@ else
   nix-shell -p git --run "git clone --branch main '$REPO_URL' '$TARGET_REPO'"
 fi
 [[ -f "$TARGET_REPO/flake.nix" && -f "$TARGET_REPO/flake.lock" ]] || fatal 'Clone lacks flake files.'
-[[ -f "$TARGET_REPO/hosts/nixos/configuration.nix" ]] || fatal 'GitHub does not contain renamed host. Push Stage 1 commit from Garuda first.'
+[[ -f "$TARGET_REPO/hosts/nixos/configuration.nix" ]] || fatal 'The remote lacks hosts/nixos/configuration.nix; publish the intended source revision before reinstalling.'
 if grep -Rqs 'ankur-laptop' "$TARGET_REPO/hosts/nixos" "$TARGET_REPO/flake.nix"; then
   fatal 'Old hostname references remain. Fix repository and retry after checking staged files.'
 fi
@@ -100,17 +105,17 @@ info 'Verify bootloader stays on NIXBOOT, Garuda UEFI priority untouched'
 [[ "$(nix --extra-experimental-features 'nix-command flakes' eval --json "$TARGET_REPO#nixosConfigurations.$HOST.config.boot.loader.efi.canTouchEfiVariables")" == false ]] || fatal 'canTouchEfiVariables must be false before installation.'
 [[ "$(nix --extra-experimental-features 'nix-command flakes' eval --json "$TARGET_REPO#nixosConfigurations.$HOST.config.boot.loader.systemd-boot.enable")" == true ]] || fatal 'Expected systemd-boot to remain enabled on p6.'
 info 'Check Home Manager integrated in the NixOS configuration'
-if nix --extra-experimental-features 'nix-command flakes' eval --raw "$TARGET_REPO#nixosConfigurations.$HOST.config.home-manager.users.ankur.home.username" | grep -qx 'ankur'; then
+if nix --extra-experimental-features 'nix-command flakes' eval --raw "$TARGET_REPO#nixosConfigurations.$HOST.config.home-manager.users.\"$TARGET_USER\".home.username" | grep -qx "$TARGET_USER"; then
   echo 'Home Manager is integrated: it will be applied by nixos-install.'
 else
-  fatal 'Home Manager not integrated as a NixOS module for user ankur; inspect flake before installing.'
+  fatal "Home Manager is not integrated for $TARGET_USER; inspect flake before installing."
 fi
 info 'Install flake (including integrated Home Manager)'
 nixos-install --flake "$TARGET_REPO#$HOST" --option max-jobs 1 --option cores 2
-info 'Set your ankur user password (NixOS login)'
-nixos-enter --root /mnt -c 'passwd ankur'
+info "Set the $TARGET_USER user password (NixOS login)"
+nixos-enter --root /mnt -c "passwd $TARGET_USER"
 info 'Fix repository ownership inside installed NixOS'
-nixos-enter --root /mnt -c 'chown -R ankur:users /home/ankur/nixos-config'
+nixos-enter --root /mnt -c "chown -R -- $TARGET_USER:users $TARGET_HOME/nixos-config"
 echo
 info 'NixOS installed. Before reboot: verify /mnt/boot/loader/entries/ and keep your live USB ready.'
 echo 'Garuda GRUB integration is a separate step: it is not modified by this installer.'

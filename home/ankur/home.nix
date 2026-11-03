@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ osConfig, ... }:
 
 {
-  home.username = "ankur";
-  home.homeDirectory = "/home/ankur";
+  home.username = osConfig.my.user.name;
+  home.homeDirectory = osConfig.my.user.homeDirectory;
 
   home.stateVersion = "26.05";
 
@@ -11,7 +11,7 @@
 
 
   home.file.".config/nix-learning/welcome.txt".text = ''
-    Hello Ankur!
+    Hello ${osConfig.my.user.name}!
     This file is managed by Home Manager.
     I can reproduce this file on another NixOS machine!
   '';

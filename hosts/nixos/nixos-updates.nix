@@ -1,8 +1,8 @@
-{ ... }: {
+{ config, ... }: {
   # Nothing updates on a schedule: run nix-update-safe manually when desired.
   my.system.nixosUpdates = {
     enable = true;
-    repoPath = "/home/ankur/nixos-config";
+    repoPath = "${config.my.user.homeDirectory}/nixos-config";
     host = "nixos";
     cli.enable = true;
     diagnostics.enable = true;

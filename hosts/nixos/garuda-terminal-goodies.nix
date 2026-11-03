@@ -1,8 +1,8 @@
-{ lib, ... }:
+{ config, lib, ... }:
 {
   # Home Manager controls Fish, but Kitty is NOT enabled through HM here.
   # Preserve the existing shell prompt, plugins, aliases and shortcuts.
-  home-manager.users.ankur.programs.fish.interactiveShellInit = lib.mkAfter ''
+  home-manager.users.${config.my.user.name}.programs.fish.interactiveShellInit = lib.mkAfter ''
     # Garuda-inspired dark pastel shell syntax colors.
     set -g fish_color_normal cdd6f4
     set -g fish_color_command 89b4fa

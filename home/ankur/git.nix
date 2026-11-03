@@ -6,10 +6,9 @@
     enable = true;
 
     settings = {
-      user = {
-        name = "AnkurAlpha";
-        email = "comp2ankur@gmail.com";
-      };
+      user =
+        lib.optionalAttrs (osConfig.my.user.git.name != "") { name = osConfig.my.user.git.name; }
+        // lib.optionalAttrs (osConfig.my.user.git.email != "") { email = osConfig.my.user.git.email; };
 
       safe.directory = "/etc/nixos";
     };

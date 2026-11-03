@@ -5,7 +5,7 @@ let
   base = with pkgs; [ git gnumake cmake pkg-config ];
   enabled = name: (builtins.getAttr name settings).enable or false;
   shell = name: packages: pkgs.mkShell {
-    name = "ankur-${name}";
+    name = "dev-${name}";
     inherit packages;
   };
 in

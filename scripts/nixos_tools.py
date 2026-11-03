@@ -77,9 +77,9 @@ class Host:
     system: str = "x86_64-linux"
 
     def validate(self):
-        require(bool(re.fullmatch(r"[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?", self.name)) and self.name not in RESERVED,
+        require(bool(re.fullmatch(r"[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?", self.name)) and self.name not in RESERVED and not self.name.startswith("iso-"),
                 "Choose a NEW hostname: lowercase letters, digits and hyphens, maximum 63 characters; "
-                "nixos, installer-iso, garuda and templates are reserved.")
+                "nixos, installer-iso, garuda, templates and the iso- prefix are reserved.")
         require(bool(re.fullmatch(r"[a-z_][a-z0-9_-]{0,30}", self.username))
                 and self.username not in {"root", "nobody", "daemon"}, "Invalid regular username.")
         require(self.graphics in GRAPHICS, "Unsupported graphics selection.")

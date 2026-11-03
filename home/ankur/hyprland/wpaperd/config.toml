@@ -1,4 +1,4 @@
 [default]
-path = "/home/ankur/custom_wallpapers/photos"
+# path is filled from the selected Home Manager home directory.
 duration = "1m"
 transition-time = 600

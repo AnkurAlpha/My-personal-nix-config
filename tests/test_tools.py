@@ -141,7 +141,9 @@ class InstallerTests(unittest.TestCase):
             gaming=False, bluetooth=False, power_profiles=False, timezone="UTC", root="/mnt",
             mode="fresh", root_device="/dev/sdz2", boot_device="/dev/sdz1", allow_shared_esp=False,
             install=False, resume=False)
-        with patch.object(tools, "need_tools"), patch.object(tools, "mounts", return_value=[]), \
+        with tempfile.TemporaryDirectory() as empty_target, \
+             patch.object(tools, "validate_target_root", return_value=Path(empty_target)), \
+             patch.object(tools, "need_tools"), patch.object(tools, "mounts", return_value=[]), \
              patch.object(tools, "block_inventory", return_value=[
                  dict(path="/dev/sdz1", type="part", fstype="vfat"),
                  dict(path="/dev/sdz2", type="part", fstype="btrfs")]), \

@@ -1,4 +1,4 @@
-{ lib, pkgs, osConfig, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
   c = osConfig.my.apps.desktop;
   internet = osConfig.my.apps.internet;
@@ -76,7 +76,8 @@ let
 in {
   xdg.configFile = lib.mkIf active {
     "waybar/config".text = builtins.toJSON bar;
-    "waybar/style.css".source = ./waybar/style.css;
+    "waybar/style.css".text = lib.replaceStrings [ "@USER_HOME@" ] [ config.home.homeDirectory ]
+      (builtins.readFile ./waybar/style.css);
     "waybar/launcher.png".source = ./waybar/launcher.png;
     "waybar/scripts" = {
       source = ./waybar/scripts;

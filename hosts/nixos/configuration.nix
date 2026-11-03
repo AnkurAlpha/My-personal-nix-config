@@ -8,6 +8,8 @@
   services.displayManager.sddm.theme = pkgs.lib.mkForce "sddm-astronaut-theme";
   imports =
     [
+      ../../modules/identity.nix
+      ./identity.nix
       ./sddm-astronaut.nix
       ./session-appearance.nix
       ../../modules/system/session-appearance.nix
@@ -122,9 +124,9 @@
   # services.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users."ankur" = {
+  users.users.${config.my.user.name} = {
     isNormalUser = true;
-    description = "Ankur Kumar";
+    description = config.my.user.description;
     extraGroups = [ "networkmanager" "wheel" ];
     packages = [ ];  # Managed by Home Manager utilities.kate
   };
@@ -142,7 +144,7 @@
   # for shortcut build commands/just temporary
   programs.nh = {
     enable = true;
-    flake = "/home/ankur/nixos-config";
+    flake = "${config.my.user.homeDirectory}/nixos-config";
   };
   # Application switches are in ./applications.nix.
 

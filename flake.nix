@@ -41,6 +41,7 @@
     let
       # New hosts are opt-in directories with their own hardware configuration.
       # Keep the original laptop and installer definitions independent.
+      installerIsos = import ./lib/isos.nix { inherit nixpkgs; source = self.outPath; };
       additionalHosts = import ./lib/hosts.nix { inherit nixpkgs home-manager; };
       ankurLaptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -50,7 +51,7 @@
 
           home-manager.nixosModules.home-manager
 
-          {
+          ({ config, ... }: {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
@@ -64,13 +65,19 @@
                 vimReactSnippetsSrc = vimReactSnippets;
             };
 
-            home-manager.users.ankur =
+            home-manager.users.${config.my.user.name} =
               import ./home/ankur/home.nix;
-          }
+          })
         ];
       };
     in
     {
+      checks.x86_64-linux.username-flow = import ./tests/username-flow.nix {
+        inherit nixpkgs; laptop = ankurLaptop;
+      };
+      checks.x86_64-linux.iso-accounts = import ./tests/isos.nix {
+        inherit nixpkgs; source = self.outPath;
+      };
       checks.x86_64-linux.portability = import ./tests/portability.nix {
         inherit nixpkgs home-manager;
       };
@@ -92,18 +99,19 @@
 
           modules = [
             ./hosts/garuda/home.nix
+            { my.user.name = "ankur"; }
           ];
         };
       };
 
-      nixosConfigurations = additionalHosts // {
+      nixosConfigurations = assert nixpkgs.lib.intersectLists
+        (builtins.attrNames additionalHosts) (builtins.attrNames installerIsos) == [];
+        additionalHosts // installerIsos // {
         nixos = ankurLaptop;
 
         # Independent minimal ISO: never imports the laptop hardware or Home Manager.
-        ankur-installer-iso = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [ ./hosts/installer-iso/default.nix ];
-        };
+        # Compatibility alias; public workflows use iso-minimal / iso-hyprland.
+        ankur-installer-iso = installerIsos.iso-minimal;
       };
     };
 }

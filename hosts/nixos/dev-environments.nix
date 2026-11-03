@@ -4,7 +4,7 @@
 {
   enable = true;
   helper.enable = true; # nix-dev wrapper installed in Home Manager
-  repoPath = "/home/ankur/nixos-config";
+  repoPath = null; # use the selected account's home/nixos-config
 
   cpp.enable = true;
   python.enable = true;
