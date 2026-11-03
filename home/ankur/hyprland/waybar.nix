@@ -21,10 +21,40 @@ let
   bar = base // {
     "modules-left" = builtins.filter enabled base."modules-left";
     "modules-center" = builtins.filter enabled base."modules-center";
-    "modules-right" = builtins.filter enabled base."modules-right";
+    "modules-right" = lib.concatMap (n:
+      if n == "battery" then [ "power-profiles-daemon" n ] else [ n ]
+    ) (builtins.filter enabled base."modules-right");
     "custom/network_traffic" = base."custom/network_traffic" // {
       # Direct Bash invocation avoids /bin/bash assumptions on NixOS.
       exec = "${pkgs.bash}/bin/bash ${./waybar/scripts/network_traffic.sh}";
+    };
+    # Icons and networking adapted for the NixOS host and its installed Nerd Font.
+    cpu = base.cpu // {
+      format = " {usage}%";
+    };
+    memory = base.memory // {
+      format = "󰍛 {}%";
+    };
+    network = base.network // {
+      interface = "wlo1"; # Device name from nmcli on this laptop.
+      interval = 5;
+      "format-wifi" = "󰤨 {signalStrength}%";
+      "format-ethernet" = "󰈀";
+      "format-linked" = "󰤯 {ifname} (No IP)";
+      "format-disconnected" = "󰤮";
+      "format-disabled" = "󰖪";
+    };
+    "power-profiles-daemon" = {
+      format = "{icon}";
+      tooltip = true;
+      "tooltip-format" = "Power mode: {profile}\nLeft click: cycle / Right click: choose";
+      "format-icons" = {
+        default = "";
+        performance = "";
+        balanced = "";
+        "power-saver" = "";
+      };
+      "on-click-right" = "${pkgs.bash}/bin/bash ${./waybar/scripts/power_profile_menu.sh}";
     };
     # Drop fixed Garuda hwmon paths. Enable module only after checking NixOS sensors.
     temperature = builtins.removeAttrs base.temperature [ "thermal-zone" "hwmon-path" ];

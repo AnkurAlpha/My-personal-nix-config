@@ -45,7 +45,7 @@ nord15 #b48ead
     border: 0;
     border-radius: 0;
     padding: 0 0;
-    font-family:Symbols Nerd Font Mono;
+    font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font Mono", sans-serif;
     font-size: 15px;
     margin-right: 5px;
     margin-left: 5px;
@@ -181,3 +181,9 @@ window#waybar {
 #custom-network_traffic{
    color:#d08770;
 }
+
+/* Garuda-inspired power mode accent; retain the rest of the existing bar theme. */
+#power-profiles-daemon { color: #cba6f7; }
+#power-profiles-daemon.performance { color: #fab387; }
+#power-profiles-daemon.balanced { color: #f9e2af; }
+#power-profiles-daemon.power-saver { color: #a6e3a1; }
