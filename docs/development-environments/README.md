@@ -10,8 +10,9 @@ Edit `hosts/nixos/dev-environments.nix`. The top-level `enable` flag
 disables all new development shells. Every language has its own `.enable` flag.
 `helper.enable` toggles the Home Manager `nix-dev` command.
 
-After changing switches, stage and commit the change before running a flake
-command so Nix sees the updated settings in the Git-backed source tree.
+New files must be Git-added before Git-backed flakes see them. Changes to
+already tracked files are visible without a commit; commit after review and
+validation to retain a reproducible checkpoint.
 
 ## Usage
 

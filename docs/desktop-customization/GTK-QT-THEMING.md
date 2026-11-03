@@ -11,7 +11,8 @@ This add-on creates:
 - `home/ankur/qt-appearance.nix` — Home Manager Qt5/Qt6 config
 
 New Qt configuration uses qt5ct/qt6ct, the BeautyLine icon theme, and
-Kvantum with its built-in dark `KvDark` style. Kvantum's compositing is
+Kvantum with the repository's `Sweet` style from
+`home/ankur/themes/garuda-exact-kvantum/Sweet/`. Kvantum's compositing is
 explicitly disabled to avoid some Hyprland/Qt6 crashes. This is not
 pixel-identical to GTK Sweet-Dark, but it gives Qt apps a consistent dark look.
 No Plasma/KWallet modules are enabled.

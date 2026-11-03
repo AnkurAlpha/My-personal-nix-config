@@ -7,10 +7,12 @@ services, install tools, format disks, create snapshots, or start automounting.
 
 ## Existing mounts are intentionally preserved
 
-- `/` (ext4) and `/boot` (vfat) are declared in `hosts/nixos/hardware-configuration.nix`.
+- `/`, `/home`, `/nix`, `/var/log` (Btrfs subvolumes) and `/boot` (vfat) are
+  declared in `hosts/nixos/hardware-configuration.nix`.
 - `/mnt/garuda` (Btrfs, `subvolid=5`, `nofail`) is already declared in the host's `configuration.nix`.
 - Neither file is modified here, other than adding imports to `configuration.nix`.
 - Mounting Garuda, enabling Btrfs tools, and enabling scheduled Btrfs scrub are **different operations**. This module does not configure scheduled scrubs or write to Garuda.
+  Monthly NixOS-root scrub is separately active in `hosts/nixos/btrfs-maintenance.nix`.
 
 ## Switches
 

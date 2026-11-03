@@ -69,7 +69,7 @@ let
     "hyprland/window" = base."hyprland/window";
     "custom/keyboard-layout" = base."custom/keyboard-layout";
     "custom/launcher" = base."custom/launcher";
-    "custom/power" = base."custom/power";
+    "custom/power" = base."custom/power" // { "on-click" = "nwg-bar"; };
     "custom/weather" = if internet.enable && internet.curl.enable && util.enable && util.yad.enable
       then base."custom/weather" else builtins.removeAttrs base."custom/weather" [ "exec" "on-click" ];
   };

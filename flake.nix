@@ -39,6 +39,9 @@
 
   outputs = { self, nixpkgs, home-manager, nixvim, fimloom, smoothcursor, nvimEmmet, vimReactSnippets, neominimap, ... }:
     let
+      # New hosts are opt-in directories with their own hardware configuration.
+      # Keep the original laptop and installer definitions independent.
+      additionalHosts = import ./lib/hosts.nix { inherit nixpkgs home-manager; };
       ankurLaptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
 
@@ -68,6 +71,10 @@
       };
     in
     {
+      checks.x86_64-linux.portability = import ./tests/portability.nix {
+        inherit nixpkgs home-manager;
+      };
+
       # Flake-pinned isolated dev shells; host services and GPU are unchanged.
       devShells.x86_64-linux = import ./modules/development/dev-shells.nix {
         inherit nixpkgs;
@@ -89,7 +96,7 @@
         };
       };
 
-      nixosConfigurations = {
+      nixosConfigurations = additionalHosts // {
         nixos = ankurLaptop;
 
         # Independent minimal ISO: never imports the laptop hardware or Home Manager.

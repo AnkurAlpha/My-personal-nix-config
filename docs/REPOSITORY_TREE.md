@@ -1,0 +1,242 @@
+# Repository configuration tree
+
+Actual source hierarchy at this audit. Cursor binary/symlink aliases, PNGs and
+the large Kvantum SVG are grouped below; all Nix modules, scripts and guides are listed.
+
+- `README.md`
+- `docs/`
+  - `ARCHITECTURE.md`
+  - `AUDIT_REPORT.md`
+  - `COMMANDS.md`
+  - `DESKTOP_AND_HOME_MANAGER.md`
+  - `GAMING_AND_GRAPHICS.md`
+  - `GARUDA_GOODIES_ON_NIXOS.md`
+  - `HOSTS.md`
+  - `INSTALLATION.md`
+  - `MAINTENANCE.md`
+  - `MODULE_MANAGEMENT.md`
+  - `NIXOS_BTRFS_REINSTALL.md`
+  - `NIXOS_INSTALL_ON_ANOTHER_PC.md`
+  - `README.md`
+  - `REPOSITORY_TREE.md`
+  - `academics/`
+    - `README.md`
+  - `desktop-customization/`
+    - `GTK-QT-THEMING.md`
+    - `README.md`
+  - `development-environments/`
+    - `README.md`
+  - `office/`
+    - `README.md`
+  - `performance-tuning/`
+    - `README.md`
+  - `printing-peripherals/`
+    - `README.md`
+  - `security-privacy/`
+    - `README.md`
+  - `storage-filesystems/`
+    - `README.md`
+  - `virtualization/`
+    - `README.md`
+- `flake.lock`
+- `flake.nix`
+- `home/`
+  - `ankur/`
+    - `Building`
+    - `applications/`
+      - `academics/`
+        - `matlab-launch.sh`
+      - `academics.nix`
+      - `browsers.nix`
+      - `default.nix`
+      - `desktop.nix`
+      - `development/`
+        - `direnv.nix`
+      - `development.nix`
+      - `gaming.nix`
+      - `gwenview.nix`
+      - `internet.nix`
+      - `media.nix`
+      - `multimedia.nix`
+      - `neovim/`
+        - `completion.nix`
+        - `dashboard.nix`
+        - `default.nix`
+        - `keymaps.nix`
+        - `lsp.nix`
+        - `options.nix`
+        - `plugins.nix`
+        - `snippets.nix`
+        - `statusline.nix`
+        - `theme.nix`
+        - `webdev-extras.nix`
+      - `office.nix`
+      - `security.nix`
+      - `social.nix`
+      - `system-tools.nix`
+      - `utilities.nix`
+    - `audio-bluetooth.nix`
+    - `desktop-customization.nix`
+    - `development-environments.nix`
+    - `fish.nix`
+    - `fonts.nix`
+    - `git.nix`
+    - `gpg.nix`
+    - `home.nix`
+    - `hyprland/`
+      - `default.nix`
+      - `dock/`
+        - `style.css`
+      - `drawer/`
+        - `drawer.css`
+      - `drawer.nix`
+      - `hypridle.nix`
+      - `hyprlock.nix`
+      - `hyprsunset.nix`
+      - `kitty/`
+        - `kitty.conf`
+      - `kitty.nix`
+      - `mako/`
+        - `config`
+      - `mako.nix`
+      - `nwg-bar.nix`
+      - `waybar/`
+        - `config`
+        - `config.json`
+        - `scripts/`
+          - `OCV`
+          - `backlight-hint.sh`
+          - `cleanup_after_start.sh`
+          - `keyhint.sh`
+          - `network_traffic.sh`
+          - `power_profile_menu.sh`
+        - `style.css`
+      - `waybar.nix`
+      - `wofi/`
+        - `config`
+        - `style.css`
+        - `style.widgets.css`
+      - `wofi.nix`
+      - `wpaperd/`
+        - `config.toml`
+    - `kde-cleanup.nix`
+    - `qt-appearance.nix`
+    - `shell/`
+      - `default.nix`
+      - `fastfetch/`
+        - `config.jsonc`
+      - `starship.toml`
+    - `storage-filesystems.nix`
+    - `theme.nix`
+    - `themes/`
+      - `Sweet-cursors/`
+        - `index.theme`
+    - `trash-cleanup.nix`
+    - `zellij/`
+      - `README.md`
+      - `config.kdl`
+    - `zellij.nix`
+- `hosts/`
+  - `garuda/`
+    - `home.nix`
+  - `installer-iso/`
+    - `default.nix`
+  - `nixos/`
+    - `applications.nix`
+    - `audio-bluetooth.nix`
+    - `browsers.nix`
+    - `btrfs-maintenance.nix`
+    - `configuration.nix`
+    - `desktop-customization.nix`
+    - `dev-environments.nix`
+    - `gaming.nix`
+    - `garuda-extras.nix`
+    - `garuda-system-goodies.nix`
+    - `garuda-terminal-goodies.nix`
+    - `gpu.nix`
+    - `hardware-configuration.nix`
+    - `kde-cleanup.nix`
+    - `maintenance.nix`
+    - `media.nix`
+    - `multi-host.nix`
+    - `networking.nix`
+    - `nixos-updates.nix`
+    - `performance-tuning.nix`
+    - `power-battery.nix`
+    - `printing-peripherals.nix`
+    - `qt-appearance.nix`
+    - `sddm-astronaut.nix`
+    - `security-privacy.nix`
+    - `session-appearance.nix`
+    - `shell-fish.nix`
+    - `social.nix`
+    - `storage-filesystems.nix`
+    - `virtualization.nix`
+  - `templates/`
+    - `README.md`
+    - `new-host.nix.example`
+- `lib/`
+  - `hosts.nix`
+- `modules/`
+  - `applications/`
+    - `docker.nix`
+    - `options.nix`
+  - `development/`
+    - `dev-shells.nix`
+    - `nix-dev.sh`
+  - `development.nix`
+  - `hardware/`
+    - `nvidia-hybrid.nix`
+  - `home/`
+    - `garuda/`
+      - `default.nix`
+    - `shared/`
+      - `default.nix`
+  - `hyprland.nix`
+  - `iso/`
+    - `installer-features.nix`
+  - `profiles/`
+    - `machine.nix`
+    - `portable.nix`
+  - `system/`
+    - `audio-bluetooth.nix`
+    - `desktop-customization.nix`
+    - `kde-cleanup.nix`
+    - `maintenance.nix`
+    - `multi-host.nix`
+    - `networking.nix`
+    - `nix-fleet.sh`
+    - `nix-update-safe.sh`
+    - `nixos-updates.nix`
+    - `performance-tuning.nix`
+    - `power-battery.nix`
+    - `printing-peripherals.nix`
+    - `qt-appearance-options.nix`
+    - `security-privacy.nix`
+    - `session-appearance.nix`
+    - `storage-filesystems.nix`
+    - `virtualization.nix`
+- `requirements-audit.txt`
+- `scripts/`
+  - `check.sh`
+  - `install.sh`
+  - `new-host.sh`
+  - `nixos_tools.py`
+  - `reinstall-nixos/`
+    - `02_mount_nixos_btrfs.sh`
+    - `03_bootstrap_nixos_live.sh`
+    - `04_garuda_grub_nixos_entry.sh`
+    - `README.md`
+- `tests/`
+  - `check_docs.py`
+  - `check_nix_syntax.py`
+  - `portability.nix`
+  - `test_tools.py`
+
+Binary/theme assets retained: `assets/sddm-sweet-background.png`,
+`home/ankur/hyprland/waybar/{launcher.png,scripts/...}`,
+`home/ankur/themes/Sweet-cursors/cursors/` and
+`home/ankur/themes/garuda-exact-kvantum/Sweet/{Sweet.svg,Sweet.kvconfig}`.
+
+The Git directory, ignored Python caches and build result symlinks are omitted.
+Responsibilities and import relationships are in [Architecture](ARCHITECTURE.md).

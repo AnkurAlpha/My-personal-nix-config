@@ -1,11 +1,14 @@
-# Performance Tuning (all new features disabled)
+# Performance Tuning (current host enables ZRAM)
 
 Files:
 - `hosts/nixos/performance-tuning.nix` — individual switches
 - `modules/system/performance-tuning.nix` — options and implementations
 
-All feature switches **and** `my.system.performanceTuning.enable` are false.
-Nothing is enabled or installed by this module until you explicitly opt in.
+The option declarations default to false, but the current host explicitly sets
+`my.system.performanceTuning.enable = true`, `memory.zram.enable = true` and
+`memory.zramPercent = 90`. It also sets `vm.swappiness = 180`. Other optional
+feature flags remain off. The 90% logical size overrides the 50% `mkDefault`
+in Garuda goodies; it is not an immediate physical RAM reservation.
 The existing AMD + NVIDIA PRIME offloading, kernel, GameMode, MangoHud,
 power profiles, mounts and services are not changed by this module.
 
@@ -42,4 +45,5 @@ nh os build ~/nixos-config -H nixos
 nh os switch ~/nixos-config -H nixos
 ```
 
-`/mnt/garuda` is only inspected by the installer; no files there are modified.
+The module does not alter `/mnt/garuda`. See [Garuda features](../GARUDA_GOODIES_ON_NIXOS.md)
+for other active providers and [maintenance](../MAINTENANCE.md) for TRIM scope.

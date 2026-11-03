@@ -6,7 +6,7 @@
     xwayland.enable = true;
   };
   # Core compositor retained independently of desktop applications.
-  # KDE remains an alternative session if desktop tools are switched off.
+  # Plasma availability is controlled separately by the host KDE cleanup policy.
   security.pam.services.hyprlock = lib.mkIf
     (config.my.apps.desktop.enable && config.my.apps.desktop.hyprlock.enable) {};
 }

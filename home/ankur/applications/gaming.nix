@@ -23,5 +23,5 @@ in
     enableSessionWide = false;
   };
 
-  home.packages = lib.optionals (selected "nvidiaOffload") [ nvidiaGame ];
+  home.packages = lib.optionals (selected "nvidiaOffload" && osConfig.hardware.nvidia.prime.offload.enable) [ nvidiaGame ];
 }

@@ -1,4 +1,4 @@
-# Optional system tuning. All NEW features are DISABLED by default.
+# Optional system tuning. This host explicitly enables ZRAM at 90%.
 # Power & Battery, hybrid AMD/NVIDIA, gaming, and kernel settings are unchanged.
 { ... }:
 {
@@ -14,7 +14,7 @@
 
     memory = {
       zram.enable = true;
-      zramPercent = 90; # inert until memory.zram.enable = true
+      zramPercent = 90; # maximum logical swap size; physical use grows on demand
       lowSwappiness.enable = false;
       cachePressure.enable = false;
       earlyoom.enable = false;

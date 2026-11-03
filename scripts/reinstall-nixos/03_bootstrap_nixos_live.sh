@@ -11,7 +11,7 @@ HOST=nixos
 
 fatal() { echo "ERROR: $*" >&2; exit 1; }
 info() { echo; echo "==> $*"; }
-[[ "$(id -u)" == 0 ]] || fatal 'Run as root via sudo: sudo bash ./02_bootstrap_nixos_live.sh'
+[[ "$(id -u)" == 0 ]] || fatal 'Run as root via sudo: sudo bash ./03_bootstrap_nixos_live.sh'
 command -v nixos-install >/dev/null || fatal 'This is not a NixOS installation environment (missing nixos-install).'
 for cmd in lsblk findmnt nixos-generate-config nixos-enter nix; do
   command -v "$cmd" >/dev/null || fatal "Missing command: $cmd"

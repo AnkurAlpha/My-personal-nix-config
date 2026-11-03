@@ -28,7 +28,7 @@ in
       qt6ctSettings = if c.qt6Settings.enable then appearance else null;
       kvantum = {
         enable = useKvantum;
-        # KvDark ships with the Kvantum engine; avoid KDE/Plasma integration.
+        # Use the repository Sweet Kvantum assets without KDE/Plasma integration.
         # Disable compositing in Kvantum to avoid a known Qt6/Wayland issue.
         settings.General = {
           theme = "Sweet";

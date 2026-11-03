@@ -6,7 +6,7 @@ The scripts intentionally **never resize, move, partition, format, or erase a di
 
 ## On Garuda, BEFORE repartitioning
 
-1. Verify Git checkout is clean and synchronized. As of the last user log, HEAD was `f64c7da` and clean.
+1. Verify the current Git checkout is clean and synchronized; do not rely on a historical commit hash.
 2. Back up any personal data on old NixOS `p7` that is not tracked in GitHub (projects, GPG/SSH keys, secrets, databases, etc.). Copy anything irreplaceable off the SSD. GitHub only covers committed configuration, not personal state.
 3. Check the Garuda Btrfs filesystem's **used space**:
 
@@ -17,8 +17,8 @@ The scripts intentionally **never resize, move, partition, format, or erase a di
    ```
 
    You need room to shrink Garuda by about 102 GiB for a 200 GiB NixOS partition, or 52 GiB for a 150 GiB partition. Ensure large safety headroom.
-4. Extract this installer bundle and run `bash 01_prepare_nixos_hostname.sh /run/media/ankur/nixos/home/ankur/nixos-config` from Garuda. It renames flake output and host to `nixos`, preserves the user `ankur`, and commits the changes locally, including this reinstall guide and scripts.
-5. Inspect the commit and then run `git -C /run/media/ankur/nixos/home/ankur/nixos-config push origin main`. **Do not proceed until the commit is on GitHub.**
+4. The host/output is already named `nixos`. The historical `01_prepare_nixos_hostname.sh` helper is not shipped or needed.
+5. Review and synchronize the actual current configuration before reinstalling. Confirm your expected commit exists on the remote; do not perform a hostname migration from an absent helper.
 
 ## Partition operation (GParted Live, manual and backup verified)
 
@@ -33,6 +33,8 @@ For **200 GiB** NixOS, only if Garuda has sufficiently little used space:
 - Do not format p6, p5, p1, p2, p3, or p4. If GPT numbering or labels change, STOP; the scripts require p6/p7 at verified paths.
 
 **No automated partition-erasing script is included.** Confirm Garuda and Windows are still accessible before proceeding. GParted manual: https://gparted.org/display-doc.php?name=moving-space-between-partitions
+
+For any other computer, use the [universal installer](../../docs/INSTALLATION.md).
 
 ## From NixOS live USB (after GParted and valid network)
 

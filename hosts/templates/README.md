@@ -1,33 +1,28 @@
-# Adding another NixOS host safely
+# New-host templates and generator
 
-This folder is only a reference. The installer will not register another
-computer until you know its actual hardware, partitions and boot method.
+Use the [host management guide](../../docs/HOSTS.md) and
+[universal installation guide](../../docs/INSTALLATION.md).
 
-1. Boot a NixOS live ISO on the *new* computer and partition it manually.
-   **Check block device names carefully. Nothing here partitions drives.**
-2. Run `sudo nixos-generate-config --root /mnt` on that computer after mounting
-   the new system's root and boot partitions.
-3. Create `hosts/NEW_HOST/` in your cloned Git repo; copy
-   `new-host.nix.example` to `hosts/NEW_HOST/configuration.nix`.
-4. Copy the freshly generated `hardware-configuration.nix` into that host
-   directory. Never copy `hosts/nixos/hardware-configuration.nix`.
-5. Adjust `networking.hostName`, `system.stateVersion`, bootloader,
-   user credentials and host-specific packages for the new machine.
-6. Register a NEW attribute in `flake.nix` using this pattern, without
-   altering the existing `nixos` or `nixos` aliases:
+After generating hardware on the actual target computer:
 
-   NEW_HOST = nixpkgs.lib.nixosSystem {
-     system = "x86_64-linux";
-     modules = [ ./hosts/NEW_HOST/configuration.nix ];
-   };
+```bash
+sudo nixos-generate-config --root /mnt --show-hardware-config > /tmp/hardware-configuration.nix
+bash scripts/new-host.sh --host newpc --username alice \
+  --hardware /tmp/hardware-configuration.nix --root-fs btrfs --graphics amd
+git add hosts/newpc
+nix eval --raw .#nixosConfigurations.newpc.config.networking.hostName
+nix build --no-link .#nixosConfigurations.newpc.config.system.build.toplevel
+```
 
-7. Review and commit the changes, and run
-   `sudo nixos-install --flake /path/to/repo#NEW_HOST` FROM THE LIVE ISO,
-   after verifying the target filesystem mounts.
+The generator never installs or overwrites a different existing host. It validates
+names, requires actual hardware data and writes one complete new host directory.
+`lib/hosts.nix` automatically discovers directories with `configuration.nix`, so
+no manual flake edit is needed. Reserved laptop and ISO outputs remain separate.
 
-Do not publish passwords or private keys in your Git repo. A minimal installer
-ISO is not an installed system; copying a laptop's configuration as-is to
-another machine is unsafe due to bootloader, disk UUID and GPU differences.
+`new-host.nix.example` is an inactive manual reference, not a registered host.
+Copy it only into a new host directory, add that target's hardware file and review
+its username/graphics/boot/storage settings. The old laptop's hardware file is
+never a portable template. Passwords are set locally with `passwd`, not in Git.
 
-Use `nix-fleet hosts`, `nix-fleet iso-build`, and `nix-fleet template` on your
-original laptop. Building an ISO does not flash a USB or erase a drive.
+`nix-fleet hosts`, `nix-fleet iso-build`, and `nix-fleet template` remain available
+on the original laptop. ISO builds do not flash a USB or install a machine.

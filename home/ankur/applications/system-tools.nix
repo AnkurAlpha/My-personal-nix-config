@@ -8,7 +8,11 @@ in {
   # firmware changes, partition operations, or privileged monitoring.
   home.packages =
       add c.btop.enable pkgs.btop
-    ++ add c.nvtop.enable pkgs.nvtopPackages.nvidia
+    ++ add c.nvtop.enable (if osConfig.hardware.nvidia.prime.offload.enable
+      || builtins.elem "nvidia" osConfig.services.xserver.videoDrivers
+      then pkgs.nvtopPackages.nvidia
+      else if (lib.attrByPath [ "my" "hardware" "gpu" "integratedVendor" ] "amd" osConfig) == "intel"
+      then pkgs.nvtopPackages.intel else pkgs.nvtopPackages.amd)
     ++ add c.iotop.enable pkgs.iotop
     ++ add c.powertop.enable pkgs.powertop
     ++ add c.gdu.enable pkgs.gdu

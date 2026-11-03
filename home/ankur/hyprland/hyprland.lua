@@ -281,7 +281,7 @@ end
 
 -- Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
 bind_exec(mainMod .. " + SHIFT + R", "hyprctl reload")
-bind_exec(mainMod .. " + SHIFT + E", "nwg-bar -i 72")
+bind_app("powerMenu", mainMod .. " + SHIFT + E", "nwg-bar -i 72")
 if app_enabled.kitty and app_enabled.fish and app_enabled.zellij then
     bind_exec(mainMod .. " + code:36", "kitty -e env SHELL=/run/current-system/sw/bin/fish zellij")
 end -- 36 = Enter

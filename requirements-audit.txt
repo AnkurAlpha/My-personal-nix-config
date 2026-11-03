@@ -1,0 +1,4 @@
+# Optional checks for non-Nix environments; not a dependency of installation.
+tree-sitter==0.26.0
+tree-sitter-nix==0.1.0
+shellcheck-py==0.11.0.1

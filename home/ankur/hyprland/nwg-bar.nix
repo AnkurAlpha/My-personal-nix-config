@@ -1,13 +1,12 @@
-{ pkgs, ... }:
+{ pkgs, lib, osConfig, ... }:
 let
   bar = pkgs.nwg-bar;
   icons = "${bar}/share/nwg-bar/images";
-  items = [
-    {
+  items = lib.optional osConfig.my.apps.desktop.hyprlock.enable {
       label = "_Lock screen";
       exec = "${pkgs.hyprlock}/bin/hyprlock";
       icon = "${icons}/system-lock-screen.svg";
-    }
+    } ++ [
     {
       label = "Suspen_d";
       exec = "systemctl suspend";
@@ -31,6 +30,7 @@ let
   ];
 in
 {
+  config = lib.mkIf (osConfig.my.apps.desktop.enable && osConfig.my.apps.desktop.powerMenu.enable) {
   home.packages = [ bar ];
 
   xdg.configFile."nwg-bar/bar.json".text = builtins.toJSON items;
@@ -100,4 +100,5 @@ in
       background-color: rgba(255, 0, 0, 0.65);
     }
   '';
+  };
 }

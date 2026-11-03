@@ -2,11 +2,11 @@
 
 **Scope: personal, hardware-specific configuration, not a universal installer.**
 
-This repository includes the validated `nixos` host (`ankur`) and scripts under
+This repository includes the existing `nixos` host (`ankur`) and scripts under
 `scripts/reinstall-nixos/` for **one verified dual/triple-boot disk layout**.
 Do not run those scripts unchanged on another disk or computer.
 
-## Current validated layout
+## Original machine layout (historical runtime report)
 
 - `/dev/nvme0n1p1`: shared Garuda/Windows EFI system partition — preserve
 - `/dev/nvme0n1p2`, `p3`, and `p4`: Windows / recovery — preserve
@@ -22,7 +22,7 @@ Back up personal data before partitioning. Perform all partition moves/resizes
 filesystem health, and a restorable backup. The included NixOS installer
 scripts must never resize or format disks automatically.
 
-## Verified repairs after November 2026 reinstall
+## Historical repairs and current source notes
 
 1. The `flake.nix` output `nixosConfigurations.nixos` must appear exactly once.
    An older temporary `nixos = ankurLaptop;` alias previously caused a
@@ -33,8 +33,10 @@ scripts must never resize or format disks automatically.
 4. Freshly generated host hardware configuration is copied into
    `hosts/nixos/hardware-configuration.nix` and FAT32 `/boot` masks are
    hardened to `fmask=0077,dmask=0077` for systemd-boot's random seed.
-5. SDDM currently uses the `elarun` theme. The previous `Elegant` greeter
-   submitted an empty username; TTY and direct Hyprland login both worked.
+5. Historical reinstall notes reported `elarun` as a working recovery greeter
+   after `Elegant` submitted an empty username. The current source instead forces
+   `sddm-astronaut-theme` with the `black_hole` theme package; verify current
+   runtime separately. The older Elegant module remains imported.
 6. Home Manager is integrated with NixOS: a system rebuild handles it.
 7. Account passwords are set locally with `passwd`, not in the public flake.
 

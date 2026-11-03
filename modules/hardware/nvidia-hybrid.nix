@@ -8,6 +8,7 @@ in {
     enable = lib.mkEnableOption "hybrid RTX 5050 GPU configuration";
     nvidiaBusId = lib.mkOption { type = lib.types.str; default = ""; };
     integratedBusId = lib.mkOption { type = lib.types.str; default = ""; };
+    openKernelModules = lib.mkOption { type = lib.types.bool; default = true; };
     integratedVendor = lib.mkOption {
       type = lib.types.enum [ "amd" "intel" ];
       default = "amd";
@@ -15,6 +16,10 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [ {
+      assertion = cfg.nvidiaBusId != "" && cfg.integratedBusId != "";
+      message = "NVIDIA PRIME offload requires the actual integrated and discrete GPU PCI bus IDs.";
+    } ];
     # NVIDIA userspace is proprietary even with the open kernel module.
     nixpkgs.config.allowUnfree = lib.mkDefault true;
     hardware.graphics = {
@@ -27,7 +32,7 @@ in {
     ];
     hardware.nvidia = {
       # Blackwell/RTX 50-series: use NVIDIA's open kernel modules.
-      open = true;
+      open = cfg.openKernelModules;
       modesetting.enable = true;
       nvidiaSettings = true;
       prime = {

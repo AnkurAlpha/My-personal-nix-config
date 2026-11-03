@@ -1,6 +1,6 @@
 # Isolated per-project shells (not globally installed system packages).
 # These settings are also read by the flake outputs. Change a switch, then
-# git add/commit the changes before using nix develop from the Git flake.
+# stage any new files before using nix develop; commit after validation.
 {
   enable = true;
   helper.enable = true; # nix-dev wrapper installed in Home Manager

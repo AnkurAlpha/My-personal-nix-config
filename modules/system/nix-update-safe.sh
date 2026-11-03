@@ -130,7 +130,7 @@ PYEDIT
   ;;
 esac
 
-# For a Git flake, newly modified paths must be staged for the build to see them.
+# Stage the exact update for review/commit; new files need staging for Git flakes.
 git add -- flake.lock flake.nix
 git diff --cached --check
 if git diff --cached --quiet; then

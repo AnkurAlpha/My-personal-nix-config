@@ -1,7 +1,8 @@
 # Declarative shell migration: Fish + Starship + Fastfetch.
 # Keep ~/.config/fish/config.fish from Home Manager; do not source old Arch startup.
-{ pkgs, lib, ... }:
+{ pkgs, lib, osConfig, ... }:
 {
+  config = lib.mkIf (osConfig.my.apps.desktop.enable && osConfig.my.apps.desktop.fish.enable) {
   programs.fish = {
     enable = true;
     interactiveShellInit = lib.mkAfter ''
@@ -22,4 +23,5 @@
   # Avoid collisions with programs.fastfetch.settings by managing its directory.
   home.packages = [ pkgs.fastfetch ];
   xdg.configFile."fastfetch".source = ./fastfetch;
+  };
 }

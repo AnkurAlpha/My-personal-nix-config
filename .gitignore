@@ -2,3 +2,8 @@ result
 result-*
 # Ignore accidentally created literal-tilde directories
 ~/
+
+# Local validation caches and installer runtime state
+__pycache__/
+*.pyc
+.install-state.json
