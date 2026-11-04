@@ -33,8 +33,27 @@ cd ~/nixos-config
 bash scripts/build-iso.sh
 ```
 
-The wizard asks for an image configuration name, live username and desktop
-(`minimal` or `hyprland`). It creates a public `iso-configs/NAME.nix`, stages it so
+The wizard validates each answer immediately and lets you retry invalid choices.
+For example:
+
+| Prompt | Example answer | Meaning |
+| --- | --- | --- |
+| ISO configuration name | `my_iso` | Saves `iso-configs/my_iso.nix`; exports `iso-my_iso` |
+| Live username | `garuda` | Account used in this live session; independent of the image name |
+| Desktop | `hyprland` or `1` | Graphical live desktop; `minimal` or `2` gives a terminal only |
+
+Profile names accept 1-63 lowercase letters, digits, hyphens and **underscores**;
+start with a letter, end with a letter/digit, and omit the reserved `iso-` prefix.
+Live usernames follow regular-account rules: start with a lowercase letter or
+underscore, use lowercase letters/digits/underscores/hyphens, at most 31 characters;
+`root`, `nobody` and `daemon` are reserved. `garuda` is a valid username.
+**Garuda is a Linux distribution, not a desktop option.** These images run NixOS;
+select `hyprland` for the graphical profile described below. Press Enter to keep a
+prompt's default; desktop names are case-insensitive in the wizard. Ctrl+C or end
+of input cancels cleanly. Explicit command-line flags remain strict and fail on
+invalid input rather than requesting replacements.
+
+The helper creates a public `iso-configs/NAME.nix`, stages it so
 Nix can see it, builds the ISO, copies a real `.iso` into `~/ISO`, and writes its
 `.iso.sha256` checksum. It retains the Nix result link as well. Unrelated source
 changes must be committed or safely saved first. It never flashes a USB, activates
@@ -50,6 +69,8 @@ bash scripts/build-iso.sh --profile minimal
 bash scripts/build-iso.sh --profile hyprland
 # Create a distinct public profile with your chosen live account, then build.
 bash scripts/build-iso.sh --name travel --username alice --desktop hyprland
+# The choices in the table above, without prompts.
+bash scripts/build-iso.sh --name my_iso --username garuda --desktop hyprland
 # Preview without writes, Git staging or build.
 bash scripts/build-iso.sh --name travel --username alice --desktop hyprland --dry-run
 # Write/stage preferences only; review/commit before building this saved profile.
@@ -759,6 +780,8 @@ application rather than discarding unrelated personal work.
 | Symptom | Inspect / action |
 | --- | --- |
 | New host/ISO missing | Git-add its new file, check exact name and automatic registration; never reuse reserved `iso-` host prefix |
+| ISO profile name rejected | Names such as `my_iso` and `my-live` are supported; omit paths, uppercase letters and the reserved `iso-` prefix. The wizard retries the current field. |
+| Entered `garuda` for desktop | Use `hyprland`/`1` for graphics or `minimal`/`2` for a terminal. `garuda` can be the live username; the image remains NixOS. |
 | ISO helper refuses build | Read unrelated dirty-source warning, profile collision, missing tool or unsafe output path; do not force overwrite |
 | Custom live login has no usable password yet | Complete console password setup; inspect `live-user-setup.service`; graphical/getty login waits for it |
 | Cannot find ISO | Helper prints real file + checksum; direct Nix builds put it under result/iso; verify build succeeded |
@@ -773,14 +796,20 @@ application rather than discarding unrelated personal work.
 
 ## Validation and current limits
 
-Source base for this revision: `997c31d78f2f3a9e9c4a1fcf264e9853f6617954`.
-That earlier revision's flake evaluation and **23 system derivations** were
-successfully built on the user's actual NixOS laptop, then pushed to `main`.
-Those logs validate the earlier revision, not this new ISO/account implementation.
+Source base for this wizard correction: `20663ed9fd3bc64f7c6e70fc6a9de0c5bdecd074`.
+On **4 November 2026**, the supplied laptop log shows the ISO/account update passed
+all **37 then-current Python tests**, native `nix flake check --no-update-lock-file`,
+and `nh os build . -H nixos` (**121 system derivations**), then pushed to `main`.
+That command built the host without activating it. The subsequent ISO wizard
+stopped at input validation, before any ISO compilation began.
 
-This revision's automated validation includes **37 Python tests**, Bash syntax,
-ShellCheck, all Nix source/template and generated-host syntax, and single-manual
-link/fence/source-sync checks. Tests cover username/path injection, protected
+This correction changes the Python wizard, regression tests and this manual;
+Nix modules and pinned inputs are unchanged. Automated validation now includes
+**43 Python tests**, Bash syntax and single-manual link/fence/source-sync checks.
+New regressions exercise the reported `my_iso`/`garuda` choices, field retries,
+numbered/case-insensitive desktop selection, cancellation and noninteractive errors.
+The base update also passed ShellCheck and Nix source/template/generated-host
+syntax checks in its preparation environment. Tests cover username/path injection, protected
 outputs, no-overwrite/idempotence, build failure before install, local confirmation,
 existing data/live mounts, ISO orchestration/copy/checksum and real read-only
 traffic-counter JSON. Simulated ISO bytes in tests are not bootable artifacts.
@@ -789,12 +818,12 @@ traffic-counter JSON. Simulated ISO bytes in tests are not bootable artifacts.
 locked-before-setup accounts. `tests/username-flow.nix` evaluates the personal
 desktop with a different account and checks HM/helper paths. These run as native flake checks when Nix is present.
 
-The audit workspace is Ubuntu and has no usable Nix/QEMU installation; attempts
-to obtain Nix binaries timed out. Therefore native evaluation of **this revision**,
-real ISO compilation, boot/password service behavior, USB/VM/physical installation,
-NVIDIA/runtime/suspend behavior and performance remain **unverified**. No actual
-ISO binary or physical-boot certification is claimed. Tools/configurations are
-implemented and syntax/simulation checked; perform the native checks before use:
+The correction workspace has no usable Nix/QEMU installation, so the updated
+wizard is tested here without compiling an image. The user's native checks and
+host build above validate the base Nix configuration. Real ISO compilation,
+boot/password service behavior, USB/VM/physical installation, NVIDIA/runtime/suspend
+behavior and performance remain **unverified**. No actual ISO binary or physical
+boot certification is claimed. Run the native checks and build the images on NixOS:
 
 ```bash
 bash scripts/check.sh

@@ -44,6 +44,90 @@ class IsoTests(unittest.TestCase):
             iso_tools.configure(self.repo, 'travel', 'bob', 'minimal')
         self.assertIn('alice', path.read_text())
 
+    def test_underscore_profile_is_created_and_built_with_exact_name(self):
+        profile = iso_tools.configure(self.repo, 'my_iso', 'garuda', 'hyprland')
+        self.assertEqual(profile.name, 'my_iso.nix')
+        commands = []
+        def fake_run(command, **kwargs):
+            args = list(map(str, command)); commands.append(args)
+            link = Path(args[args.index('--out-link') + 1])
+            (link / 'iso').mkdir(parents=True)
+            (link / 'iso/test.iso').write_bytes(b'not a bootable ISO')
+            return ''
+        with patch.object(iso_tools, 'run', side_effect=fake_run), contextlib.redirect_stdout(io.StringIO()):
+            iso = iso_tools.build(self.repo, 'my_iso', self.base / 'out')
+        self.assertTrue(iso.is_file())
+        self.assertIn('#nixosConfigurations.iso-my_iso.config.system.build.isoImage', commands[0][-1])
+
+    def test_wizard_retries_invalid_fields_before_staging(self):
+        stdout, stderr = io.StringIO(), io.StringIO()
+        # Includes the reported my_iso / garuda / garuda sequence, then corrects the desktop.
+        answers = ['../escape', 'my_iso', 'root', 'garuda', 'garuda', 'hyprland']
+        with patch.object(iso_tools, 'REPO', self.repo), patch.object(iso_tools.os, 'geteuid', return_value=1000), \
+             patch.object(iso_tools.sys.stdin, 'isatty', return_value=True), \
+             patch('builtins.input', side_effect=answers) as prompt, \
+             patch.object(iso_tools, 'need_tools'), patch.object(iso_tools, 'run') as command, \
+             patch.object(iso_tools, 'build') as build, \
+             contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            status = iso_tools.main(['--configure-only'])
+        self.assertEqual(status, 0, stderr.getvalue())
+        self.assertEqual(prompt.call_count, len(answers))
+        command.assert_called_once_with(['git', 'add', '--', 'iso-configs/my_iso.nix'], cwd=self.repo)
+        build.assert_not_called()
+        profile = (self.repo / 'iso-configs/my_iso.nix').read_text()
+        self.assertIn('liveUsername = "garuda"', profile)
+        self.assertIn('desktop = "hyprland"', profile)
+        self.assertEqual(stderr.getvalue().count('Invalid choice:'), 3)
+        self.assertIn('Garuda is a Linux distribution', stderr.getvalue())
+
+    def test_wizard_accepts_desktop_menu_names_numbers_and_default(self):
+        for choice, expected in [('1', 'hyprland'), ('2', 'minimal'), ('Hyprland', 'hyprland'), ('', 'hyprland')]:
+            with self.subTest(choice=choice):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with patch.object(iso_tools, 'REPO', self.repo), \
+                     patch.object(iso_tools.sys.stdin, 'isatty', return_value=True), \
+                     patch('builtins.input', side_effect=['my_iso', 'garuda', choice]), \
+                     contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                    status = iso_tools.main(['--dry-run'])
+                self.assertEqual(status, 0, stderr.getvalue())
+                self.assertIn(f'desktop = "{expected}"', stdout.getvalue())
+                self.assertEqual(stderr.getvalue(), '')
+                self.assertEqual(list((self.repo / 'iso-configs').iterdir()), [])
+
+    def test_wizard_eof_cancels_without_writes(self):
+        for answers in [[EOFError()], ['my_iso', EOFError()], ['my_iso', 'garuda', EOFError()]]:
+            with self.subTest(answers=answers):
+                stderr = io.StringIO()
+                with patch.object(iso_tools, 'REPO', self.repo), \
+                     patch.object(iso_tools.sys.stdin, 'isatty', return_value=True), \
+                     patch('builtins.input', side_effect=answers), \
+                     contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
+                    status = iso_tools.main(['--dry-run'])
+                self.assertEqual(status, 130)
+                self.assertNotIn('Traceback', stderr.getvalue())
+                self.assertEqual(list((self.repo / 'iso-configs').iterdir()), [])
+
+    def test_explicit_bad_name_fails_before_any_wizard_prompt(self):
+        stderr = io.StringIO()
+        with patch.object(iso_tools.sys.stdin, 'isatty', return_value=True), \
+             patch('builtins.input') as prompt, contextlib.redirect_stderr(stderr):
+            status = iso_tools.main(['--name', '../escape', '--dry-run'])
+        self.assertEqual(status, 1)
+        prompt.assert_not_called()
+        self.assertIn('reserved iso- prefix', stderr.getvalue())
+
+    def test_cli_underscore_and_invalid_noninteractive_desktop(self):
+        script = str(ROOT / 'scripts/build-iso.sh')
+        for desktop, expected_status in [('hyprland', 0), ('garuda', 2)]:
+            with self.subTest(desktop=desktop):
+                result = subprocess.run(['bash', script, '--name', 'my_iso', '--username', 'garuda',
+                                         '--desktop', desktop, '--dry-run'], text=True, capture_output=True)
+                self.assertEqual(result.returncode, expected_status, result.stderr)
+                self.assertNotIn('Traceback', result.stderr)
+                if desktop == 'hyprland':
+                    self.assertIn('PLAN: build iso-my_iso', result.stdout)
+        self.assertFalse((ROOT / 'iso-configs/my_iso.nix').exists())
+
     def test_dry_run_and_symlink_protection(self):
         with contextlib.redirect_stdout(io.StringIO()):
             iso_tools.configure(self.repo, 'travel', 'alice', 'hyprland', dry_run=True)

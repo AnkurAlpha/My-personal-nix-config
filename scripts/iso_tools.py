@@ -13,15 +13,44 @@ from nixos_tools import Host, NIX, REPO, SafetyError, need_tools, nix_string, re
 
 
 def profile_name(value):
-    require(bool(re.fullmatch(r"[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?", value))
-            and not value.startswith("iso-"), "Profile name must be a simple lowercase name without the iso- prefix.")
+    require(bool(re.fullmatch(r"[a-z](?:[a-z0-9_-]{0,61}[a-z0-9])?", value))
+            and not value.startswith("iso-"),
+            "Use 1-63 lowercase letters, digits, hyphens or underscores (for example my_iso or my-live); "
+            "start with a letter, end with a letter/digit, and omit the reserved iso- prefix.")
     return value
+
+
+def live_username(value):
+    Host("account-check", value).validate()
+    return value
+
+
+def desktop_name(value):
+    explanation = "Choose hyprland (graphical desktop) or minimal (terminal only)."
+    if value == "garuda":
+        explanation = "Garuda is a Linux distribution; this builds a NixOS ISO. " + explanation
+    require(value in {"minimal", "hyprland"}, explanation)
+    return value
+
+
+def prompt_value(label, default, validate):
+    while True:
+        value = input(f"{label} [{default}]: ").strip() or default
+        try:
+            return validate(value)
+        except SafetyError as exc:
+            print(f"Invalid choice: {exc} Please try again.", file=sys.stderr)
+
+
+def desktop_input(value):
+    value = value.lower()
+    return desktop_name({"1": "hyprland", "2": "minimal"}.get(value, value))
 
 
 def render_profile(name, username, desktop):
     profile_name(name)
-    Host("account-check", username).validate()
-    require(desktop in {"minimal", "hyprland"}, "Choose minimal or hyprland.")
+    live_username(username)
+    desktop_name(desktop)
     return ("# Live ISO preferences only. The password is entered locally after boot.\n"
             "{ ... }: {\n  my.iso = {\n"
             f"    liveUsername = {nix_string(username)};\n"
@@ -99,7 +128,7 @@ def main(argv=None):
     parser.add_argument("--list", action="store_true", help="List available public profiles without Nix")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--profile", help="Build an existing iso-configs/NAME.nix")
-    group.add_argument("--name", help="Create a new named profile, then build it")
+    group.add_argument("--name", help="Create a new profile, e.g. my_iso or my-live, then build it")
     parser.add_argument("--username", help="Live account name; password is requested locally after boot")
     parser.add_argument("--desktop", choices=("minimal", "hyprland"))
     parser.add_argument("--output-dir", type=Path, default=Path.home() / "ISO")
@@ -118,14 +147,18 @@ def main(argv=None):
             path = REPO / "iso-configs" / (name + ".nix")
             require(path.is_file() and not path.is_symlink(), f"Unknown ISO profile {name}. Use --list.")
         else:
-            if not (args.name and args.username):
+            name = profile_name(args.name) if args.name is not None else None
+            username = live_username(args.username) if args.username is not None else None
+            if name is None or username is None:
                 require(sys.stdin.isatty(), "Supply --profile NAME, or --name NAME --username USER --desktop PROFILE.")
-                args.name = args.name or input("ISO configuration name [my-live]: ").strip() or "my-live"
-                args.username = args.username or input("Live username [nixos]: ").strip() or "nixos"
-                args.desktop = args.desktop or input("Desktop [hyprland/minimal; default hyprland]: ").strip() or "hyprland"
+                print("Create a NixOS live ISO. The configuration name and live username are separate choices.")
+                name = name or prompt_value("ISO configuration name (for example my_iso)", "my-live", profile_name)
+                username = username or prompt_value("Live username", "nixos", live_username)
+                if args.desktop is None:
+                    print("Desktop choices:\n  1) hyprland - graphical live desktop\n  2) minimal - terminal only")
+                    args.desktop = prompt_value("Desktop (1/2 or name)", "hyprland", desktop_input)
                 print("You will choose the live password after boot, and the installed username/password during installation.")
-            name = profile_name(args.name)
-            text = render_profile(name, args.username, args.desktop or "hyprland")
+            text = render_profile(name, username, args.desktop or "hyprland")
             path = REPO / "iso-configs" / (name + ".nix")
         output_directory(REPO, args.output_dir)
         if args.dry_run:
@@ -138,7 +171,7 @@ def main(argv=None):
             need_tools("nix")
             clean_for_build(REPO, [str(path.relative_to(REPO))] if not args.profile else [])
         if not args.profile:
-            configure(REPO, name, args.username, args.desktop or "hyprland")
+            configure(REPO, name, username, args.desktop or "hyprland")
         run(["git", "add", "--", str(path.relative_to(REPO))], cwd=REPO)
         if args.configure_only:
             print(f"Profile ready: {path}. Password entry happens after boot. Review and commit this public profile.")
@@ -149,7 +182,7 @@ def main(argv=None):
     except (SafetyError, OSError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         print("Interrupted. Profile/build outputs retained; no USB or running system was changed.", file=sys.stderr)
         return 130
     return 0
