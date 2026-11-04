@@ -10,6 +10,7 @@ let
       networkApplet = ${if active "networkApplet" then "true" else "false"},
       waybar = ${if active "waybar" then "true" else "false"},
       mako = ${if active "mako" then "true" else "false"},
+      automount = ${if osConfig.my.system.storageFilesystems.enable && osConfig.my.system.storageFilesystems.removable.udiskieAutomount.enable then "true" else "false"},
       clipboard = ${if active "clipboard" then "true" else "false"},
       wpaperd = ${if active "wpaperd" then "true" else "false"},
       hypridle = ${if c.enable && c.hypridle.enable && c.hypridleAutostart.enable then "true" else "false"},

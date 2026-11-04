@@ -411,7 +411,7 @@ Repository map and important module owners (H = `hosts/nixos/`, S = `modules/sys
 | `H:qt-appearance.nix`; `S:qt-appearance-options.nix`; matching HM file | Qt5ct/Qt6ct/Kvantum; requires appearance/theme flags; Sweet assets under `home/ankur/themes/` |
 | `H:desktop-customization.nix`; `S:desktop-customization.nix`; matching HM file | Opt-in tools, not automatic theme replacement; current optional GUI tools off |
 | `H:session-appearance.nix`; `S:session-appearance.nix`; `H:sddm-astronaut.nix` | Night-light switch/older Elegant greeter; current host forces Astronaut `black_hole` theme |
-| `H:storage-filesystems.nix`; `S:storage-filesystems.nix`; matching HM file | Filesystem tools/UDisks/GVfs/udiskie; does not declare mounts; optional features off |
+| `H:storage-filesystems.nix`; `S:storage-filesystems.nix`; matching HM file | Removable automount enabled on the laptop: UDisks2/GVfs/udiskie, NTFS/exFAT/USB tools; other optional tools off; does not declare mounts |
 | `H:printing-peripherals.nix`; `S:printing-peripherals.nix` | Optional scanning/phones/ADB/Bolt; existing CUPS is independently enabled in root host |
 | `H:security-privacy.nix`; `S:security-privacy.nix` | Optional AppArmor/audit/Fail2ban/firewall/SSH hardening/secret tools; off; avoid duplicate GPG agents |
 | `H:multi-host.nix`; `S:multi-host.nix`; `S:nix-fleet.sh` | Host list, ISO helper and this manual; account-relative paths |
@@ -630,7 +630,66 @@ may instead need an explicitly checked `DRI_PRIME` choice. No overclock or unsaf
 GPU power setting is applied. Benchmark repeatable game settings, temperatures,
 power and frame times to judge any tuning change.
 
+### Identify a gaming device
+
+Before selecting a controller driver or a console client, identify the actual
+device and connection. Plug a controller/capture device into USB, or pair a
+Bluetooth controller with Blueman, then run as your normal user:
+
+```bash
+bash scripts/gaming-device-info.sh
+```
+
+The read-only report lists USB vendor/product IDs and names, Linux input devices,
+paired Bluetooth names with addresses redacted, and video/capture device names.
+It works when some diagnostic tools/devices are unavailable. `usbutils` is
+installed by the laptop's storage profile; Bluetooth was already enabled.
+Share the report or a photo of the device's front and underside/model label to
+choose the correct setup. A standalone console not connected to the laptop
+cannot be identified by this report. PlayStation/Xbox network play and HDMI
+capture are separate setups; no device-specific driver or remote-play login is
+configured until the model and desired connection are known. Existing Steam
+integration remains enabled; diagnostic output does not certify game compatibility.
+
 ## Power, storage and maintenance
+
+### Removable USB drives
+
+The laptop enables `my.system.storageFilesystems.enable`,
+`removable.udisks2.enable`, `removable.gvfs.enable` and
+`removable.udiskieAutomount.enable` in
+[`hosts/nixos/storage-filesystems.nix`](hosts/nixos/storage-filesystems.nix).
+NTFS/exFAT utilities and USB identification tools are enabled there too; network
+mount, encryption and other optional filesystem tools keep their own switches.
+UDisks2 supplies the system mount backend; GVfs integrates with file managers;
+Home Manager runs udiskie to mount eligible removable filesystems during your
+logged-in desktop session, normally under `/run/media/USERNAME/`.
+
+Udiskie runs without a tray dependency (`tray = "never"`), with automounting and
+notifications enabled. Its graphical-session service and a Hyprland startup hook
+start the same systemd service, so two independent automounters are not launched.
+UUIDs already declared in `fileSystems`, including the separate Garuda filesystem,
+are ignored by udiskie. This update does not add filesystem entries or change
+partition/format settings. Encrypted media still needs its unlock password;
+damaged/hibernated/unsupported filesystems can still refuse mounting.
+
+After activating the configuration, reinsert the USB device. If the current
+session predates the update, start the user service once:
+
+```bash
+systemctl --user start udiskie.service
+systemctl --user status udiskie.service --no-pager
+udisksctl status
+lsblk -o NAME,TRAN,FSTYPE,LABEL,MOUNTPOINTS
+journalctl --user -b -u udiskie.service --no-pager -n 60
+```
+
+Use the file manager's unmount/eject action before unplugging a writable drive.
+If Polkit asks for authentication, use the desktop prompt; no unrestricted mount
+rule or all-user device permissions are added. UDisks2 may activate over D-Bus
+when requested, so an initially inactive daemon alone is not proof of failure.
+
+### Power and maintenance
 
 These Garuda-inspired features use **native NixOS/HM implementations**, not Arch,
 pacman, a replacement process scheduler or a disk clone. Verify runtime state on
@@ -790,21 +849,30 @@ application rather than discarding unrelated personal work.
 | HM file collision | Back up/move that specific unmanaged file; edit source, not generated symlinks |
 | SDDM/graphics failure | TTY, `journalctl -b -u display-manager`, previous generation; review driver/boot rather than reformat |
 | Game uses wrong GPU | Verify actual bus IDs, offload availability and renderer report; GameMode is separate |
+| USB drive does not automount | Activate the storage configuration, check `systemctl --user status udiskie`, `udisksctl status`, `lsblk` and the user journal; reinsert the device. Declared/internal filesystems are not treated as removable media. |
+| Unknown gaming device | Run `bash scripts/gaming-device-info.sh` with the device connected, or inspect/share its model label/photo before selecting drivers or console clients. |
 | Shared ESP/old home refused | Deliberate backup/manual migration; default installer protections are intentional |
 | Installer interrupted | Inspect mounts/source stage; use matching resume only for staging failures; never rerun fresh over existing subvolumes |
 | Build warning but successful exit | Review the specific warning; warnings do not by themselves establish failure or justify unrelated tuning |
 
 ## Validation and current limits
 
-Source base for this wizard correction: `20663ed9fd3bc64f7c6e70fc6a9de0c5bdecd074`.
+Source base for the removable-drive update:
+`dcb7a72fab5d1c6d416258d6d1309648ddfe250f`.
 On **4 November 2026**, the supplied laptop log shows the ISO/account update passed
 all **37 then-current Python tests**, native `nix flake check --no-update-lock-file`,
 and `nh os build . -H nixos` (**121 system derivations**), then pushed to `main`.
-That command built the host without activating it. The subsequent ISO wizard
-stopped at input validation, before any ISO compilation began.
+That command built the host without activating it. A later supplied log shows
+revision `0141bfd` passed all 43 Python tests and native flake checks, then built
+and copied the **Hyprland `iso-my_iso` image with live user `garuda`**, including
+its SHA256 sidecar. Profile `my_iso.nix` was subsequently committed as `dcb7a72`.
+This establishes successful ISO compilation; it does not establish boot testing.
 
-This correction changes the Python wizard, regression tests and this manual;
-Nix modules and pinned inputs are unchanged. Automated validation now includes
+The wizard correction added field retries and regression tests. The current
+update enables removable-drive management on the laptop, removes the automounter's
+tray dependency, starts its managed service from Hyprland, and adds a read-only
+gaming-device identification helper. Pinned inputs and fixed mounts are unchanged.
+Automated validation includes
 **43 Python tests**, Bash syntax and single-manual link/fence/source-sync checks.
 New regressions exercise the reported `my_iso`/`garuda` choices, field retries,
 numbered/case-insensitive desktop selection, cancellation and noninteractive errors.
@@ -818,12 +886,12 @@ traffic-counter JSON. Simulated ISO bytes in tests are not bootable artifacts.
 locked-before-setup accounts. `tests/username-flow.nix` evaluates the personal
 desktop with a different account and checks HM/helper paths. These run as native flake checks when Nix is present.
 
-The correction workspace has no usable Nix/QEMU installation, so the updated
-wizard is tested here without compiling an image. The user's native checks and
-host build above validate the base Nix configuration. Real ISO compilation,
-boot/password service behavior, USB/VM/physical installation, NVIDIA/runtime/suspend
-behavior and performance remain **unverified**. No actual ISO binary or physical
-boot certification is claimed. Run the native checks and build the images on NixOS:
+The preparation workspace has no usable Nix/QEMU installation. The user's native
+checks, host build and ISO compilation above validate those earlier revisions.
+Native evaluation/activation and real USB automounting for the current storage
+update are pending on the laptop. ISO boot/password-service behavior,
+USB/VM/physical installation, NVIDIA/runtime/suspend behavior and performance also
+remain **unverified**. Run native checks/builds on NixOS:
 
 ```bash
 bash scripts/check.sh
@@ -848,5 +916,7 @@ Upstream references: [NixOS manual](https://nixos.org/manual/nixos/stable/),
 [ISO construction](https://nix.dev/tutorials/nixos/building-bootable-iso-image.html),
 [GameMode](https://github.com/FeralInteractive/gamemode),
 [Btrfs](https://btrfs.readthedocs.io/en/latest/),
+[udiskie](https://github.com/coldfix/udiskie/wiki/Usage),
+[Home Manager udiskie options](https://nix-community.github.io/home-manager/options/home-manager/services/udiskie.html),
 [Ananicy C++](https://github.com/EvoXCX/ananicy-cpp).
 Pinned source and local `--help` remain authoritative where current web docs differ.

@@ -118,6 +118,8 @@ class IsoTests(unittest.TestCase):
 
     def test_cli_underscore_and_invalid_noninteractive_desktop(self):
         script = str(ROOT / 'scripts/build-iso.sh')
+        profile = ROOT / 'iso-configs/my_iso.nix'
+        before = profile.read_bytes() if profile.exists() else None
         for desktop, expected_status in [('hyprland', 0), ('garuda', 2)]:
             with self.subTest(desktop=desktop):
                 result = subprocess.run(['bash', script, '--name', 'my_iso', '--username', 'garuda',
@@ -126,7 +128,8 @@ class IsoTests(unittest.TestCase):
                 self.assertNotIn('Traceback', result.stderr)
                 if desktop == 'hyprland':
                     self.assertIn('PLAN: build iso-my_iso', result.stdout)
-        self.assertFalse((ROOT / 'iso-configs/my_iso.nix').exists())
+        after = profile.read_bytes() if profile.exists() else None
+        self.assertEqual(before, after, 'Dry-run must preserve a committed user profile')
 
     def test_dry_run_and_symlink_protection(self):
         with contextlib.redirect_stdout(io.StringIO()):

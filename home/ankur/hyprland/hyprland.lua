@@ -35,6 +35,11 @@ hl.on("hyprland.start", function()
     	-- Notification daemon
     	if app_enabled.mako then hl.exec_cmd("mako") end
 
+        -- Start the same managed automounter even in a directly launched session.
+        if app_enabled.automount then
+            hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start udiskie.service")
+        end
+
     	-- Clipboard history
     	if app_enabled.clipboard then hl.exec_cmd("wl-paste --type text --watch cliphist store") end
     	if app_enabled.clipboard then hl.exec_cmd("wl-paste --type image --watch cliphist store") end

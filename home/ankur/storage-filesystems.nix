@@ -1,8 +1,17 @@
 { osConfig, lib, ... }:
 let
   storage = osConfig.my.system.storageFilesystems;
+  declaredDevices = map (fs: fs.device or null) (builtins.attrValues osConfig.fileSystems);
+  declaredUuids = lib.unique (map (lib.removePrefix "/dev/disk/by-uuid/")
+    (lib.filter (device: builtins.isString device && lib.hasPrefix "/dev/disk/by-uuid/" device) declaredDevices));
 in
 {
-  # No services are installed or started until BOTH switches are enabled.
-  services.udiskie.enable = lib.mkIf (storage.enable && storage.removable.udiskieAutomount.enable) true;
+  services.udiskie = lib.mkIf (storage.enable && storage.removable.udiskieAutomount.enable) {
+    enable = true;
+    automount = true;
+    notify = true;
+    # The Hyprland bar is launched separately; mounting must not wait for tray.target.
+    tray = "never";
+    settings.device_config = map (uuid: { id_uuid = uuid; ignore = true; }) declaredUuids;
+  };
 }

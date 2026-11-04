@@ -13,6 +13,7 @@ in
 
     tools.ntfs.enable = mkEnableOption "ntfs-3g tools (no mounts configured)";
     tools.exfat.enable = mkEnableOption "exfatprogs (no mounts configured)";
+    tools.usbutils.enable = mkEnableOption "USB device identification tools";
     tools.btrfs.enable = mkEnableOption "btrfs-progs (no Btrfs tasks configured)";
     tools.fuse.enable = mkEnableOption "FUSE3 utilities (no filesystems mounted)";
     tools.sshfs.enable = mkEnableOption "SSHFS command-line utility (no network mounts)";
@@ -29,6 +30,7 @@ in
     environment.systemPackages =
       (optionals (selected cfg.tools.ntfs) [ pkgs.ntfs3g ])
       ++ (optionals (selected cfg.tools.exfat) [ pkgs.exfatprogs ])
+      ++ (optionals (selected cfg.tools.usbutils) [ pkgs.usbutils ])
       ++ (optionals (selected cfg.tools.btrfs) [ pkgs.btrfs-progs ])
       ++ (optionals (selected cfg.tools.fuse) [ pkgs.fuse3 ])
       ++ (optionals (selected cfg.tools.sshfs) [ pkgs.sshfs ])
@@ -36,7 +38,7 @@ in
       ++ (optionals (selected cfg.tools.f2fs) [ pkgs.f2fs-tools ])
       ++ (optionals (selected cfg.tools.luks) [ pkgs.cryptsetup ]);
 
-    # Udiskie requires UDisks2 to be available; both are OFF initially.
+    # Selecting the user automounter also supplies its system D-Bus backend.
     services.udisks2.enable = mkIf (cfg.enable && (cfg.removable.udisks2.enable || cfg.removable.udiskieAutomount.enable)) true;
     services.gvfs.enable = mkIf (selected cfg.removable.gvfs) true;
   };
