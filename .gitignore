@@ -7,3 +7,9 @@ result-*
 __pycache__/
 *.pyc
 .install-state.json
+
+# Local development environments and credentials; commit flake.lock, not these.
+.direnv/
+.env
+.env.*
+!.env.example

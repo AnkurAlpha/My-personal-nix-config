@@ -25,7 +25,7 @@ for path in [ROOT/'modules/system/nix-fleet.sh',ROOT/'scripts/nixos_tools.py']:
         errors.append(f'Obsolete documentation reference: {path.relative_to(ROOT)}')
 expected = {
  'scripts/build-iso.sh': ['iso_tools.py'],
- 'modules/iso/live-installer.nix': ['live-user-setup','liveUsername','pkgs.shadow}/bin/passwd'],
+ 'modules/iso/live-installer.nix': ['live-user-setup','liveUsername','live-account-setup.sh'],
  'modules/identity.nix': ['my.user','homeDirectory'],
  'hosts/nixos/identity.nix': ['name = "ankur"'],
  'hosts/nixos/performance-tuning.nix': ['zramPercent = 90'],

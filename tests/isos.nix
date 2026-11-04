@@ -26,9 +26,9 @@ let
       && c.programs.hyprland.enable == (desktop == "hyprland")
       && !c.hardware.nvidia.prime.offload.enable
       && c.system.build.isoImage.drvPath != "";
-  success = lib.all (desktop: lib.all (username: check desktop username) [ "nixos" "alice" ]) [ "minimal" "hyprland" ];
+  success = lib.all (desktop: lib.all (username: check desktop username) [ "nixos" "alice" ]) [ "minimal" "hyprland" "plasma" "gnome" ];
 in
 assert success;
 pkgs.runCommand "iso-accounts-evaluation" {} ''
-  echo 'Minimal/Hyprland ISO settings and locked-before-setup dynamic accounts evaluated.' > "$out"
+  echo 'All supported live desktops and locked-before-setup dynamic accounts evaluated.' > "$out"
 ''

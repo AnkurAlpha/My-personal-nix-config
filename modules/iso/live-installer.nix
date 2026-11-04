@@ -2,6 +2,27 @@
 { config, lib, pkgs, isoSource, ... }:
 let
   cfg = config.my.iso;
+  genericFiles = lib.optionalAttrs (cfg.desktop == "hyprland") {
+    "hypr/hyprland.lua" = pkgs.writeText "live-hyprland.lua" ''
+      hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+      hl.config({ input = { kb_layout = "us" }, general = { layout = "dwindle" } })
+      hl.on("hyprland.start", function() hl.exec_cmd("waybar") end)
+      hl.bind("SUPER + Return", hl.dsp.exec_cmd("kitty"))
+      hl.bind("SUPER + D", hl.dsp.exec_cmd("wofi --show drun"))
+      hl.bind("SUPER + Q", hl.dsp.window.close())
+      for i = 1, 10 do
+        hl.bind("SUPER + " .. (i % 10), hl.dsp.focus({ workspace = i }))
+      end
+    '';
+    "waybar/config" = pkgs.writeText "live-waybar.json" (builtins.toJSON {
+      layer = "top"; "modules-left" = [ "hyprland/workspaces" ];
+      "modules-right" = [ "cpu" "memory" "clock" ]; clock.format = "{:%a %d %b %H:%M}";
+    });
+  };
+  desktopFiles = genericFiles // cfg.desktopFiles;
+  parentDirs = name: let parent = builtins.dirOf name;
+    in if parent == "." then [] else (parentDirs parent) ++ [ parent ];
+  configDirs = lib.unique (lib.concatMap parentDirs (builtins.attrNames desktopFiles));
   setup = pkgs.writeShellApplication {
     name = "nixos-setup";
     runtimeInputs = [ pkgs.git pkgs.python3 pkgs.nix pkgs.coreutils ];
@@ -23,20 +44,11 @@ let
         ${pkgs.python3}/bin/python3 "$work/scripts/nixos_tools.py" install "$@"
     '';
   };
-  livePassword = pkgs.writeShellScript "live-user-password" ''
-    if [ -e /run/live-account-ready ]; then exit 0; fi
-    printf '\nSet a password for live account %s.\n' ${lib.escapeShellArg cfg.liveUsername}
-    printf 'This live-session password is separate from the installed account password.\n'
-    export LC_ALL=C
-    while true; do
-      if ${pkgs.shadow}/bin/passwd ${lib.escapeShellArg cfg.liveUsername}; then
-        status="$(${pkgs.shadow}/bin/passwd -S ${lib.escapeShellArg cfg.liveUsername})"
-        case "$status" in ${lib.escapeShellArg cfg.liveUsername}" P "*) break ;; esac
-      fi
-      printf '\nSet a non-empty usable password to finish live-session setup.\n'
-    done
-    ${pkgs.coreutils}/bin/touch /run/live-account-ready
-  '';
+  livePassword = pkgs.writeShellApplication {
+    name = "live-user-password";
+    runtimeInputs = [ pkgs.shadow pkgs.coreutils ];
+    text = builtins.readFile ./live-account-setup.sh;
+  };
 in {
   options.my.iso = {
     liveUsername = lib.mkOption {
@@ -45,10 +57,23 @@ in {
       default = "nixos";
       description = "Live account name. Its password is chosen interactively on every boot.";
     };
-    desktop = lib.mkOption { type = lib.types.enum [ "minimal" "hyprland" ]; default = "minimal"; };
+    desktop = lib.mkOption { type = lib.types.enum [ "minimal" "hyprland" "plasma" "gnome" ]; default = "minimal"; };
+    sourceHost = lib.mkOption { type = lib.types.nullOr lib.types.str; default = null; description = "Host whose public desktop/app choices are exported."; };
+    sourceUser = lib.mkOption { type = lib.types.nullOr lib.types.str; default = null; description = "Source host account supplying public desktop configuration."; };
+    desktopFiles = lib.mkOption { type = lib.types.attrsOf lib.types.path; default = {}; internal = true; };
+    passwordHash = lib.mkOption {
+      type = lib.types.nullOr (lib.types.strMatching "\\$(y|6)\\$[./A-Za-z0-9$-]+");
+      default = null; internal = true;
+      description = "Optional throwaway live-password hash, supplied only through a temporary private build wrapper.";
+    };
   };
   config = lib.mkMerge [
     {
+      assertions = [ {
+        assertion = lib.all (name: builtins.match "[A-Za-z0-9_./-]+" name != null
+          && !lib.hasPrefix "/" name && !lib.hasInfix ".." name) (builtins.attrNames cfg.desktopFiles);
+        message = "Live desktop config targets must be safe relative paths.";
+      } ];
       nix.settings.experimental-features = [ "nix-command" "flakes" ];
       users.mutableUsers = true;
       # Replace the upstream passwordless live defaults, without baking a secret.
@@ -58,7 +83,7 @@ in {
       services.openssh.enable = lib.mkForce false;
       services.getty.autologinUser = lib.mkForce null;
       services.getty.helpLine = lib.mkForce ''
-        Live user: ${cfg.liveUsername}; password chosen on this boot.
+        Live user: ${cfg.liveUsername}; password ${if cfg.passwordHash == null then "chosen on this boot" else "chosen at image build time"}.
         Network: nmtui   Installation wizard: nixos-setup --install
         The wizard defaults to a plan without --install. Manual: /etc/nixos-iso-README.md
       '';
@@ -72,7 +97,7 @@ in {
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStart = "${livePassword}";
+          ExecStart = "${livePassword}/bin/live-user-password ${cfg.liveUsername} ${if cfg.passwordHash == null then "boot" else "preset"}";
           StandardInput = "tty-force";
           StandardOutput = "tty";
           StandardError = "tty";
@@ -87,17 +112,23 @@ in {
         requires = [ "live-user-setup.service" ];
         after = [ "live-user-setup.service" ];
       };
+      systemd.tmpfiles.rules = [ "d /home/${cfg.liveUsername}/.config 0700 ${cfg.liveUsername} users - -" ]
+        ++ map (name: "d /home/${cfg.liveUsername}/.config/${name} 0700 ${cfg.liveUsername} users - -") configDirs
+        ++ lib.mapAttrsToList (name: source: "C /home/${cfg.liveUsername}/.config/${name} - ${cfg.liveUsername} users - ${source}") desktopFiles;
     }
     {
       users.users.${cfg.liveUsername} = {
         isNormalUser = true;
         extraGroups = [ "wheel" "networkmanager" "video" ];
-        initialHashedPassword = lib.mkForce "!";
+        initialHashedPassword = lib.mkForce (if cfg.passwordHash == null then "!" else cfg.passwordHash);
       };
     }
-    (lib.mkIf (cfg.desktop == "hyprland") {
-      programs.hyprland = { enable = true; withUWSM = true; xwayland.enable = true; };
-      services.displayManager.sddm = { enable = true; wayland.enable = true; };
+    (lib.mkIf (cfg.desktop != "minimal") {
+      programs.hyprland = lib.mkIf (cfg.desktop == "hyprland") { enable = true; withUWSM = true; xwayland.enable = true; };
+      services.desktopManager.plasma6.enable = cfg.desktop == "plasma";
+      services.desktopManager.gnome.enable = cfg.desktop == "gnome";
+      services.displayManager.sddm = lib.mkIf (cfg.desktop != "gnome") { enable = true; wayland.enable = true; };
+      services.displayManager.gdm.enable = cfg.desktop == "gnome";
       services.displayManager.autoLogin.enable = lib.mkForce false;
       systemd.services.display-manager = {
         requires = [ "live-user-setup.service" ];
@@ -106,31 +137,6 @@ in {
       security.rtkit.enable = true;
       services.pipewire = { enable = true; alsa.enable = true; pulse.enable = true; };
       environment.systemPackages = [ pkgs.kitty pkgs.wofi pkgs.waybar ];
-      # Seed the known user config path; do not rely on compositor-global fallback.
-      systemd.tmpfiles.rules = [
-        "d /home/${cfg.liveUsername}/.config 0700 ${cfg.liveUsername} users - -"
-        "d /home/${cfg.liveUsername}/.config/hypr 0700 ${cfg.liveUsername} users - -"
-        "C /home/${cfg.liveUsername}/.config/hypr/hyprland.lua 0644 ${cfg.liveUsername} users - /etc/xdg/hypr/hyprland.lua"
-        "d /home/${cfg.liveUsername}/.config/waybar 0700 ${cfg.liveUsername} users - -"
-        "C /home/${cfg.liveUsername}/.config/waybar/config 0644 ${cfg.liveUsername} users - /etc/xdg/waybar/config"
-      ];
-      environment.etc."xdg/hypr/hyprland.lua".text = ''
-        hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
-        hl.config({ input = { kb_layout = "us" }, general = { layout = "dwindle" } })
-        hl.on("hyprland.start", function() hl.exec_cmd("waybar") end)
-        hl.bind("SUPER + Return", hl.dsp.exec_cmd("kitty"))
-        hl.bind("SUPER + D", hl.dsp.exec_cmd("wofi --show drun"))
-        hl.bind("SUPER + Q", hl.dsp.window.close())
-        for i = 1, 10 do
-          hl.bind("SUPER + " .. (i % 10), hl.dsp.focus({ workspace = i }))
-        end
-      '';
-      environment.etc."xdg/waybar/config".text = builtins.toJSON {
-        layer = "top";
-        "modules-left" = [ "hyprland/workspaces" ];
-        "modules-right" = [ "cpu" "memory" "clock" ];
-        clock.format = "{:%a %d %b %H:%M}";
-      };
     })
   ];
 }

@@ -7,8 +7,7 @@ import subprocess
 import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 source = (ROOT / 'modules/iso/live-installer.nix').read_text()
-markers = [("    text = ''\n", "\n    '';"),
-           ('  livePassword = pkgs.writeShellScript "live-user-password" \'\'\n', "\n  '';" )]
+markers = [("    text = ''\n", "\n    '';" )]
 with tempfile.TemporaryDirectory(prefix='iso-shell-check-') as temp:
     for i, (start, finish) in enumerate(markers):
         begin = source.index(start) + len(start)
@@ -22,4 +21,4 @@ with tempfile.TemporaryDirectory(prefix='iso-shell-check-') as temp:
         subprocess.run(['bash','-n',str(path)],check=True)
         if shutil.which('shellcheck'):
             subprocess.run(['shellcheck',str(path)],check=True)
-print('Both embedded live-media shell snippets passed syntax and available lint checks (fixture substitution, not execution).')
+print('Embedded installer wrapper passed syntax and available lint checks (fixture substitution, not execution). Standalone live-account shell is checked with other tracked scripts.')

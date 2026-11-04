@@ -41,7 +41,10 @@
     let
       # New hosts are opt-in directories with their own hardware configuration.
       # Keep the original laptop and installer definitions independent.
-      installerIsos = import ./lib/isos.nix { inherit nixpkgs; source = self.outPath; };
+      installerIsos = import ./lib/isos.nix {
+        inherit nixpkgs; source = self.outPath;
+        hosts = additionalHosts // { nixos = ankurLaptop; };
+      };
       additionalHosts = import ./lib/hosts.nix { inherit nixpkgs home-manager; };
       ankurLaptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -77,6 +80,9 @@
       };
       checks.x86_64-linux.iso-accounts = import ./tests/isos.nix {
         inherit nixpkgs; source = self.outPath;
+      };
+      checks.x86_64-linux.iso-host-template = import ./tests/host-iso.nix {
+        inherit nixpkgs; source = self.outPath; laptop = ankurLaptop;
       };
       checks.x86_64-linux.portability = import ./tests/portability.nix {
         inherit nixpkgs home-manager;

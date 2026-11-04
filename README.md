@@ -1,20 +1,21 @@
 # Modular NixOS: the single manual
 
 One repository for the existing `nixos` laptop, additional computers, reproducible
-development shells, and minimal or Hyprland live ISOs. All maintained instructions
+development shells, and configurable live ISOs. All maintained instructions
 are in **this README**. Earlier guides were consolidated and removed; Git history
 retains their previous versions.
 
 The existing laptop keeps its **ankur** account. New computers and custom live
 ISOs choose their own usernames; they do not inherit it automatically. Passwords
-are entered locally during live boot or installation, never saved in Git or baked
-into an ISO. A live ISO is an installer environment, not a backup of your SSD.
+are never saved in Git. The default is local entry at live boot/installation; an
+optional build-time **throwaway** password places its hash in the ISO and Nix store. A live ISO is an installer environment, not a backup of your SSD.
 
 - [Build your own ISO](#build-your-own-iso)
 - [Install from either kind of USB](#install-from-either-kind-of-usb)
 - [Accounts and additional computers](#accounts-and-additional-computers)
 - [Architecture and module reference](#architecture-and-module-reference)
 - [Manage applications and modules](#manage-applications-and-modules)
+- [Dev’s note: project Direnv](#devs-note-direnv-in-existing-and-new-projects)
 - [Desktop and Home Manager](#desktop-and-home-manager)
 - [Gaming and graphics](#gaming-and-graphics)
 - [Power, storage and maintenance](#power-storage-and-maintenance)
@@ -24,127 +25,143 @@ into an ISO. A live ISO is an installer environment, not a backup of your SSD.
 
 ## Build your own ISO
 
-### Choose a live account and desktop
+### Choose a source host and a fresh live account
 
-On your installed NixOS system, run as your **normal user**, without sudo:
+Run as your **normal user**, without sudo:
 
 ```bash
 cd ~/nixos-config
 bash scripts/build-iso.sh
 ```
 
-The wizard validates each answer immediately and lets you retry invalid choices.
-For example:
+The wizard asks for an image configuration name, a source host, and a live
+username. It discovers real `nixosConfigurations` outputs; a host can be named
+`nixos`, `nix-laptop`, `nix-max` or another supported simple output name. Choose
+`generic`/`0` for the portable installer instead. The source account is selected
+explicitly if the host has multiple normal users. The desktop defaults to the
+chosen host's selection; generic mode offers Hyprland, minimal, Plasma or GNOME.
 
-| Prompt | Example answer | Meaning |
+| Choice | Example | Meaning |
 | --- | --- | --- |
-| ISO configuration name | `my_iso` | Saves `iso-configs/my_iso.nix`; exports `iso-my_iso` |
-| Live username | `garuda` | Account used in this live session; independent of the image name |
-| Desktop | `hyprland` or `1` | Graphical live desktop; `minimal` or `2` gives a terminal only |
+| Image profile | `travel_live` | Public `iso-configs/travel_live.nix`; exports `iso-travel_live` |
+| Source host | `nix-laptop` | Reuse that host's public desktop/app choices |
+| Source account | `owner` | Supplies public desktop configuration when necessary |
+| Live username | `garuda` | Fresh account in the image; independent of the host's existing account |
+| Password setup | `boot` or `build` | Choose locally on every boot, or enter a throwaway password now |
 
-Profile names accept 1-63 lowercase letters, digits, hyphens and **underscores**;
-start with a letter, end with a letter/digit, and omit the reserved `iso-` prefix.
-Live usernames follow regular-account rules: start with a lowercase letter or
-underscore, use lowercase letters/digits/underscores/hyphens, at most 31 characters;
-`root`, `nobody` and `daemon` are reserved. `garuda` is a valid username.
-**Garuda is a Linux distribution, not a desktop option.** These images run NixOS;
-select `hyprland` for the graphical profile described below. Press Enter to keep a
-prompt's default; desktop names are case-insensitive in the wizard. Ctrl+C or end
-of input cancels cleanly. Explicit command-line flags remain strict and fail on
-invalid input rather than requesting replacements.
+Profile names use 1-63 lowercase letters, digits, hyphens or underscores; start
+with a letter, end with a letter/digit, and omit the reserved `iso-` prefix. Live
+usernames start with a lowercase letter/underscore, use lowercase letters, digits,
+underscores or hyphens, and have at most 31 characters; `root`, `nobody` and `daemon`
+are reserved. Invalid wizard answers retry the current field. `garuda` is a valid
+username; it is a distribution name, so select a listed desktop separately.
 
-The helper creates a public `iso-configs/NAME.nix`, stages it so
-Nix can see it, builds the ISO, copies a real `.iso` into `~/ISO`, and writes its
-`.iso.sha256` checksum. It retains the Nix result link as well. Unrelated source
-changes must be committed or safely saved first. It never flashes a USB, activates
-a system, changes partitions, or pushes Git commits.
-
-Explicit alternatives:
+The helper writes/stages public preferences, builds from a separate audited
+snapshot, copies the `.iso` to `~/ISO`, and writes `.iso.sha256` plus
+`.source-audit.json`. The Nix result symlink is retained. It never flashes a USB,
+activates a host or pushes commits. Unrelated working-tree changes must be saved
+first. Different existing profiles are not overwritten; keep the existing
+`my_iso` profile or choose a new name for a host-matched image.
 
 ```bash
-# List existing image configurations; no build/download.
+# Profiles require no Nix evaluation; host discovery evaluates the flake.
 bash scripts/build-iso.sh --list
-# Build a built-in profile; neutral live username is nixos.
+bash scripts/build-iso.sh --list-hosts
+# Replace nix-laptop/owner with actual names from your repository.
+bash scripts/build-iso.sh --name travel_live --host nix-laptop --source-user owner --username alice
+# Enter a NEW temporary live password through a hidden terminal prompt.
+bash scripts/build-iso.sh --name travel_live --host nix-laptop --source-user owner --username alice --password-mode build
+# Generic profile, no host desktop/app export.
+bash scripts/build-iso.sh --name portable --host generic --username alice --desktop hyprland
+# Read-only preview: no profile writes, staging, password collection or build.
+bash scripts/build-iso.sh --name preview --host generic --username alice --desktop minimal --dry-run
+# Save public preferences only, then build the saved profile.
+bash scripts/build-iso.sh --name portable --host generic --username alice --desktop hyprland --configure-only
+git add iso-configs/portable.nix
+git commit -m "Add portable live ISO profile"
+bash scripts/build-iso.sh --profile portable --output-dir "$HOME/ISO"
+# Existing built-ins still work and use live username nixos.
 bash scripts/build-iso.sh --profile minimal
 bash scripts/build-iso.sh --profile hyprland
-# Create a distinct public profile with your chosen live account, then build.
-bash scripts/build-iso.sh --name travel --username alice --desktop hyprland
-# The choices in the table above, without prompts.
-bash scripts/build-iso.sh --name my_iso --username garuda --desktop hyprland
-# Preview without writes, Git staging or build.
-bash scripts/build-iso.sh --name travel --username alice --desktop hyprland --dry-run
-# Write/stage preferences only; review/commit before building this saved profile.
-bash scripts/build-iso.sh --name travel --username alice --desktop hyprland --configure-only
-git add iso-configs/travel.nix
-git commit -m "Add travel live ISO profile"
-bash scripts/build-iso.sh --profile travel --output-dir "$HOME/ISO"
 ```
 
-Existing different profile files are not overwritten: choose a new name or edit
-the existing file deliberately. Build outputs must be outside the repository and
-protected system/mounted Garuda paths. ISO creation can download/build several GB;
-check free space on `/nix` and the output filesystem. The real ISO copy uses
-additional space beyond the Nix store. Keep the result symlink if you want its
-store closure protected from garbage collection; the independent ISO copy remains
-a normal file even if you later remove that link.
+New profiles with a host selection record `my.iso.sourceHost`, optional
+`my.iso.sourceUser`, `my.iso.liveUsername` and `my.iso.desktop`. Password mode and
+hashes are not saved to the profile: choose a build-time password again with
+`--password-mode build` when rebuilding a saved profile. Only x86_64-linux hosts
+are currently supported. Host discovery can fetch pinned inputs even in a preview
+with `--host`; `--host generic --dry-run` needs no Nix input fetching.
 
-The public profile format is deliberately small:
+### What matching a host includes
 
-```nix
-{ ... }: {
-  my.iso = {
-    liveUsername = "alice";
-    desktop = "hyprland";
-  };
-}
-```
+The image is a separate live system. It exports system/user application packages,
+a selected allowlist of public Hyprland/Waybar/Kitty/launcher/theme/editor config,
+fonts, desktop choice, locale/time zone, kernel/driver family, Steam/GameMode,
+Bluetooth and optional removable-drive support. This repository's identity-aware
+hosts are re-evaluated with the fresh live username; public text config also has
+its home path remapped. Other custom launchers may still need adaptation.
 
-[`lib/isos.nix`](lib/isos.nix) exports each file as
-`nixosConfigurations.iso-NAME`. The direct build equivalent is:
+It does **not** extend the installed host with installer modules. Installed users,
+passwords, authorized SSH keys, disk mounts/UUIDs, PRIME PCI IDs, saved Wi-Fi
+connections, server/container services, browser state, mutable home contents and
+personal wallpapers are not migrated. Public configuration can reference files
+that are deliberately absent; adapt those features or provide a public asset.
+Plasma/GNOME use fresh desktop defaults where no supported public template exists.
+Kernel/driver choices can still limit which other hardware boots an image; test
+on the intended hardware/VM. Host matching is not a clone of a running PC.
 
-```bash
-nix build --no-update-lock-file --out-link "$HOME/ISO/travel-result" \
-  .#nixosConfigurations.iso-travel.config.system.build.isoImage
-```
+### Passwords and credential protection
 
-That direct command produces a Nix result link rather than the helper's extra
-real ISO/checksum copy. `nix-fleet iso-build` delegates to the same wizard;
-`nix-fleet iso-build --profile minimal` builds an existing profile. The historical
-`ankur-installer-iso` output remains an alias for `iso-minimal` to preserve old
-commands; it does **not** create an Ankur account.
+`boot` is the default. On **each live boot**, the local console requests a new
+non-empty password before getty or the graphical greeter starts. Root login is
+locked, SSH is disabled, sudo needs the live user's password, and no account
+password is collected at image-build time in this mode.
 
-### Boot and password setup
+`build` requires an interactive terminal and a yescrypt-capable `mkpasswd`.
+The builder asks twice through `getpass`, refuses an echoing fallback, and sends
+the password to `mkpasswd` through stdin. Plaintext is not put in files, argv,
+environment variables, logs or the public profile. A temporary private wrapper
+holds only the hash, retains the project's pinned inputs and builds without
+`--impure`. Its files are removed when the build finishes. **The hash remains
+readable in the ISO, derivations and Nix store, and permits offline guessing.**
+Use a new throwaway password; deleting the temporary wrapper does not erase Nix
+store/history copies of that hash. The same throwaway password applies to each
+boot of that particular image. The installed account still gets a separate local
+password prompt during installation, from either custom or official NixOS media.
 
-Write the resulting ISO to a verified USB using a trusted image writer. Confirm
-the exact USB device in its UI; this repository supplies no automatic flashing or
-formatting command. Keep backups and recovery media for other operating systems.
+The builder does not walk your home directory or import `~/.ssh`, `~/.gnupg`,
+password-manager stores or browser profiles. Before Nix discovery/building, it
+checks current tracked files, then copies only the configured public source roots
+and `flake.nix`, `flake.lock`, `README.md`, `.gitignore` into a new snapshot. Git history,
+untracked/ignored files and unrelated top-level files are omitted. Internal cursor
+aliases can be materialized only when they resolve to approved tracked regular
+files; external/escaping links and submodules are refused.
 
-On every custom-ISO boot, the local console asks you to set the selected live
-account's password **before login or the graphical greeter starts**. It is used
-only for that live session and sudo. The live filesystem is temporary, so choose
-it again after reboot. Root login is locked, SSH is off, and sudo requires the
-live user's password. The console setup must complete before other login units.
+Credential-like paths, private-key headers, common password-hash/token markers,
+credential-bearing input URLs and local-path flake inputs stop preparation before
+snapshot creation. No secret-content bypass is provided. Hosts coupled to private
+configuration must first expose a public configuration that works without those
+files. The source manifest lists included paths and SHA256 digests for review;
+**heuristic source checks do not certify arbitrary Nix code, third-party packages
+or the final ISO as secret-free**. Review custom code/inputs and inspect/test the
+result before sharing it. Merely installing GnuPG/OpenSSH tools does not copy
+existing private keys.
 
-| Stage | Username choice | Password choice / persistence |
-| --- | --- | --- |
-| Build a custom ISO | Wizard or `--username`; public `my.iso.liveUsername` preference | No password collected/stored at build time |
-| Boot that ISO | Uses its selected live account | `passwd` prompts locally before login; RAM-backed live session only |
-| Install from custom ISO | Installation wizard asks for the target username | Separate local target `passwd` prompt after successful installation |
-| Install from official NixOS USB | Same installation wizard / `--username` | Same target password prompt; no automatic Ankur choice |
+[`lib/iso-source.nix`](lib/iso-source.nix) also filters the embedded source during
+direct Nix builds, but direct builds bypass the Python content checks/snapshot
+and manifest. Use `scripts/build-iso.sh` for the guarded workflow. The historical
+`ankur-installer-iso` is a compatibility alias for `iso-minimal`, with no Ankur
+account. `nix-fleet iso-build` delegates to the same helper.
 
-This is intentional: embedding a reusable password or hash would expose it to
-anyone holding the image/Nix store. Password setup does not require adding a
-secret to configuration or typing it in command arguments.
-
-Minimal profile gives a TTY. Hyprland profile includes SDDM, PipeWire, Kitty,
-Wofi and a small generic Waybar. Super+Enter opens a terminal, Super+D the launcher,
-Super+Q closes a window, Super+1..0 selects workspaces. The live image uses generic
-graphics support; unusual or NVIDIA-only hardware may need a separately reviewed
-driver configuration. Neither profile imports the laptop's disk UUIDs, PRIME bus
-IDs, fixed Wi-Fi interface, personal home, browser profiles, keys or passwords.
-It contains the **public repository source** and installation tools. It is not an
-offline copy of every package needed for every possible target; internet access
-is required by the installation workflow and may be needed for Nix inputs/packages.
+Build output must be outside the repository and protected system/mounted Garuda
+paths. Host-matched images may contain many GB of applications; allow space for
+both the Nix store and a separate ISO copy. Keep the result symlink to protect
+its store closure from garbage collection. Write the resulting ISO to a verified
+USB using a trusted image writer and test it in a disposable VM before installing.
+Generic Hyprland provides Kitty/Wofi/Waybar: Super+Enter opens a terminal, Super+D
+the launcher, Super+Q closes a window and Super+1..0 switches workspaces. The
+embedded public installation source is not an offline package mirror; internet
+access is still required by the installation workflow.
 
 ## Install from either kind of USB
 
@@ -394,7 +411,7 @@ Repository map and important module owners (H = `hosts/nixos/`, S = `modules/sys
 | --- | --- |
 | `hosts/nixos/configuration.nix`, `hardware-configuration.nix`, `identity.nix` | Original imports, kernel 6.18, boot/user/locale, Btrfs UUIDs and selected identity; host-specific |
 | `modules/identity.nix`; `modules/profiles/{portable,machine}.nix` | Shared account metadata, basic packages and generic new-host desktop/GPU selection |
-| `lib/{hosts,isos}.nix`; `iso-configs/`; `hosts/installer-iso/default.nix`; `modules/iso/` | New-host/ISO registration, live tools/account setup; no active laptop hardware imports |
+| `lib/{hosts,isos,iso-source,iso-host-template}.nix`; `iso-configs/`; `hosts/installer-iso/default.nix`; `modules/iso/` | Host registration, independent host-template live systems, public-source filtering and fresh-account setup |
 | `modules/applications/options.nix`; `H:applications.nix` | Most `my.apps` declarations and category/per-app choices |
 | `H:{browsers,media,social,gaming}.nix` | Additional app option declarations/selections; gaming owns system Steam/GameMode |
 | `home/ankur/applications/` | User package implementations; development, utilities, system-tools, office, academics, browsers/internet/media/multimedia/social/security/gaming |
@@ -545,6 +562,94 @@ not disable goodies' TRIM; disabling one ZRAM provider can reveal another fallba
 Reconcile all providers or use a deliberate native override after evaluation.
 Keep hardware, firewall, user-group and service consequences visible in review.
 
+## Dev's note: direnv in existing and new projects
+
+Direnv loads project environments when you enter a directory and unloads their
+environment changes when you leave. This host already enables Direnv, Fish
+integration and nix-direnv in
+[`home/ankur/applications/development/direnv.nix`](home/ankur/applications/development/direnv.nix).
+`direnv --help` lists CLI commands; **`use flake` belongs in `.envrc`**, whose
+contents use Bash syntax even when your interactive shell is Fish.
+
+### Existing project
+
+Keep the existing source/build files. If a `flake.nix` already provides a dev
+shell, create `.envrc` with the appropriate line below; if `.envrc` exists, merge
+that line into it instead of replacing its other setup.
+
+| Existing environment | Line inside `.envrc` |
+| --- | --- |
+| Default flake dev shell | `use flake` |
+| Named flake dev shell, e.g. cpp | `use flake .#cpp` |
+| Existing shell.nix | `use nix` |
+| Optional local .env variables only | `dotenv_if_exists .env` |
+
+Review `.envrc` and any Nix configuration it executes, then run in that project:
+
+```bash
+direnv allow
+direnv status
+# After changing the environment, if a refresh is needed:
+direnv reload
+```
+
+Changing `.envrc` requires authorizing it again. For **this configuration repo's**
+existing named shells, use e.g. `use flake .#cpp`, `.#python`, `.#node`, `.#rust`,
+`.#java`, `.#clang`, `.#go` or `.#fullstack` only when that host's dev-environment
+switch enables the shell. Keep `modules/development/dev-shells.nix` and the current
+flake outputs intact. `use flake` selects its small default shell.
+
+### New project, or an existing project without Nix files
+
+Create the project directory if needed (`mkdir -p ~/git_work/my-project`, then
+`cd ~/git_work/my-project`; run `git init` only if it is not already a repository).
+Create this **project-level** `flake.nix`. It is a small C++ example; adjust
+`packages` for your language. For an existing flake, merge the dev shell into its
+outputs rather than replacing the file or its inputs.
+
+```nix
+{
+  description = "Project development environment";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs?rev=7fc6f2c20af09cdcaf48b92ec3121860139ec668";
+  outputs = { nixpkgs, ... }: {
+    devShells.x86_64-linux.default =
+      let pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      in pkgs.mkShell {
+        packages = with pkgs; [ git gcc cmake gdb pkg-config ];
+      };
+  };
+}
+```
+
+Create `.envrc` containing `use flake`. Merge these ignore rules into `.gitignore`:
+
+```gitignore
+.direnv/
+.env
+.env.*
+!.env.example
+```
+
+Then, from that project:
+
+```bash
+nix flake lock
+git add flake.nix flake.lock .envrc .gitignore
+# Review the files before allowing their code to run.
+direnv allow
+command -v g++
+g++ --version
+```
+
+Commit `flake.nix`, `flake.lock`, `.envrc` and reviewed ignore rules so teammates
+get the same tool versions. Keep `.direnv/` and real `.env` secrets out of Git;
+commit only a placeholder `.env.example` if useful. Optional `dotenv_if_exists .env`
+can follow `use flake` in `.envrc`; do not put credentials into the flake or Nix
+store. Re-enter the directory or use `direnv reload` to refresh. Use `direnv deny`
+to revoke trust. A project environment does not require `nh os switch` or global
+installation of its compiler. Update its lock file deliberately when you want
+new development-tool versions.
+
 ## Desktop and Home Manager
 
 The original host uses Hyprland/UWSM/XWayland and SDDM. KDE cleanup forces Plasma
@@ -582,13 +687,22 @@ hybrid module and actual PCI IDs. GPU rendering selection and GameMode policy ar
 separate. GameMode can request supported CPU/I/O/process policies while a game
 runs; it cannot guarantee higher FPS or choose the GPU for you.
 
-Steam → game Properties → Launch Options:
+These are **per-game launch options**, not switches in Steam's global Interface
+settings. Open **Library → right-click an installed game → Properties → General
+→ Launch Options**. For the original hybrid NVIDIA laptop, enter exactly one line:
 
-```bash
-gamemoderun %command%
-# Hybrid NVIDIA rendering plus GameMode:
+```text
 nvidia-offload gamemoderun %command%
 ```
+
+For GameMode with the game's default GPU, use this line instead:
+
+```text
+gamemoderun %command%
+```
+
+Do not paste both alternatives or the explanatory comments. Close Properties and
+start that game normally. Apply the setting to each game you want to use it with.
 
 `%command%` is a **Steam placeholder**, never a literal terminal command. For an
 independent executable use `nvidia-offload gamemoderun your-game`. The existing
@@ -648,7 +762,11 @@ Share the report or a photo of the device's front and underside/model label to
 choose the correct setup. A standalone console not connected to the laptop
 cannot be identified by this report. PlayStation/Xbox network play and HDMI
 capture are separate setups; no device-specific driver or remote-play login is
-configured until the model and desired connection are known. Existing Steam
+configured until the model and desired connection are known. The supplied photos
+identify a Cosmic Byte ARES wired controller; the laptop reports USB `3537:1094`,
+`GameSir-T3 Lite W`, with `event25`/`js0` input handlers, and the user reports Steam
+detection. No extra controller changes are planned. Check buttons/sticks/triggers
+and vibration through Steam’s input test; detection alone does not test them. Existing Steam
 integration remains enabled; diagnostic output does not certify game compatibility.
 
 ## Power, storage and maintenance
@@ -857,8 +975,12 @@ application rather than discarding unrelated personal work.
 
 ## Validation and current limits
 
-Source base for the removable-drive update:
-`dcb7a72fab5d1c6d416258d6d1309648ddfe250f`.
+Source base for the host-template/privacy/manual update: `b8119e3`.
+The supplied laptop log shows that revision passed 43 tests and native flake
+checks, built 45 system derivations, activated successfully and pushed to main.
+The automounter’s active-state check passed; actual mounting of a newly inserted
+external filesystem still needs a device test.
+
 On **4 November 2026**, the supplied laptop log shows the ISO/account update passed
 all **37 then-current Python tests**, native `nix flake check --no-update-lock-file`,
 and `nh os build . -H nixos` (**121 system derivations**), then pushed to `main`.
@@ -868,37 +990,36 @@ and copied the **Hyprland `iso-my_iso` image with live user `garuda`**, includin
 its SHA256 sidecar. Profile `my_iso.nix` was subsequently committed as `dcb7a72`.
 This establishes successful ISO compilation; it does not establish boot testing.
 
-The wizard correction added field retries and regression tests. The current
-update enables removable-drive management on the laptop, removes the automounter's
-tray dependency, starts its managed service from Hyprland, and adds a read-only
-gaming-device identification helper. Pinned inputs and fixed mounts are unchanged.
-Automated validation includes
-**43 Python tests**, Bash syntax and single-manual link/fence/source-sync checks.
-New regressions exercise the reported `my_iso`/`garuda` choices, field retries,
-numbered/case-insensitive desktop selection, cancellation and noninteractive errors.
-The base update also passed ShellCheck and Nix source/template/generated-host
-syntax checks in its preparation environment. Tests cover username/path injection, protected
-outputs, no-overwrite/idempotence, build failure before install, local confirmation,
-existing data/live mounts, ISO orchestration/copy/checksum and real read-only
-traffic-counter JSON. Simulated ISO bytes in tests are not bootable artifacts.
-`tests/portability.nix` evaluates six GPU choices/two desktops;
-`tests/isos.nix` evaluates both live desktops with neutral/custom usernames and
-locked-before-setup accounts. `tests/username-flow.nix` evaluates the personal
-desktop with a different account and checks HM/helper paths. These run as native flake checks when Nix is present.
+The current update adds real host discovery/export, fresh live identities,
+boot-time or temporary preset passwords, a guarded public source snapshot and
+manifest, privacy regressions, explicit Steam launch-option navigation, and the
+project Direnv note. The preparation workspace now has Nix 2.34.8 for native
+parsing/evaluation. **55 Python tests**, ShellCheck, native Nix parsing and the single-manual checks
+passed in preparation. Native `nix flake check --no-build --no-update-lock-file`
+also passed, including the host-template and desktop/account checks. A temporary
+preset-password wrapper evaluated successfully with unchanged pinned inputs.
+The updater repeats checks and builds the chosen validation host on the laptop
+before pushing. It does not activate this update automatically.
 
-The preparation workspace has no usable Nix/QEMU installation. The user's native
-checks, host build and ISO compilation above validate those earlier revisions.
-Native evaluation/activation and real USB automounting for the current storage
-update are pending on the laptop. ISO boot/password-service behavior,
-USB/VM/physical installation, NVIDIA/runtime/suspend behavior and performance also
-remain **unverified**. Run native checks/builds on NixOS:
+`tests/portability.nix` covers six GPU choices/two new-host desktops;
+`tests/isos.nix` covers the supported live desktops and dynamic accounts;
+`tests/host-iso.nix` checks the public host export, fresh account, independent
+mounts and desktop/apps; `tests/username-flow.nix` checks the existing desktop
+with a different account. Python tests include secret-like files, URL credentials,
+escaping symlinks, snapshots, host selection, password handling and build failures.
+Simulated image bytes and device reports in tests are fixtures, not real hardware.
+
+Full compilation/boot of the **new host-matched/preset-password ISO modes**, real
+boot/password-service behavior, installation, NVIDIA/runtime/suspend behavior and
+performance remain **unverified** until tested on NixOS/appropriate VMs. Earlier
+successful generic ISO compilation does not establish these new modes. Run:
 
 ```bash
 bash scripts/check.sh
 nix flake check --no-update-lock-file
-nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel
-bash scripts/build-iso.sh --profile minimal
-bash scripts/build-iso.sh --profile hyprland
+nh os build . -H nixos
+bash scripts/build-iso.sh --list-hosts
+bash scripts/build-iso.sh
 ```
 
 Test the images in a disposable VM: console password prompt before login, chosen
@@ -915,6 +1036,8 @@ Upstream references: [NixOS manual](https://nixos.org/manual/nixos/stable/),
 [Home Manager](https://nix-community.github.io/home-manager/),
 [ISO construction](https://nix.dev/tutorials/nixos/building-bootable-iso-image.html),
 [GameMode](https://github.com/FeralInteractive/gamemode),
+[Steam launch options](https://help.steampowered.com/en/faqs/view/7D01-D2DD-D75E-2955),
+[Direnv](https://direnv.net/), [nix-direnv](https://github.com/nix-community/nix-direnv),
 [Btrfs](https://btrfs.readthedocs.io/en/latest/),
 [udiskie](https://github.com/coldfix/udiskie/wiki/Usage),
 [Home Manager udiskie options](https://nix-community.github.io/home-manager/options/home-manager/services/udiskie.html),

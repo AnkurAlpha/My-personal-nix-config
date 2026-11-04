@@ -23,6 +23,11 @@ class IsoTests(unittest.TestCase):
         self.base = Path(self.temp.name)
         self.repo = self.base / 'repo'
         (self.repo / 'iso-configs').mkdir(parents=True)
+        (self.repo / 'README.md').write_text('Public test manual\n')
+        (self.repo / 'flake.nix').write_text('{}\n')
+        (self.repo / 'flake.lock').write_text('{"nodes":{},"root":"root","version":7}\n')
+        subprocess.run(['git', 'init', '-q', str(self.repo)], check=True)
+        subprocess.run(['git', '-C', str(self.repo), 'add', '.'], check=True)
 
     def test_profile_username_validation_and_injection(self):
         for username in ['alice', 'bob-user', 'nixos']:
@@ -69,7 +74,7 @@ class IsoTests(unittest.TestCase):
              patch.object(iso_tools, 'need_tools'), patch.object(iso_tools, 'run') as command, \
              patch.object(iso_tools, 'build') as build, \
              contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            status = iso_tools.main(['--configure-only'])
+            status = iso_tools.main(['--configure-only', '--host', 'generic'])
         self.assertEqual(status, 0, stderr.getvalue())
         self.assertEqual(prompt.call_count, len(answers))
         command.assert_called_once_with(['git', 'add', '--', 'iso-configs/my_iso.nix'], cwd=self.repo)
@@ -88,7 +93,7 @@ class IsoTests(unittest.TestCase):
                      patch.object(iso_tools.sys.stdin, 'isatty', return_value=True), \
                      patch('builtins.input', side_effect=['my_iso', 'garuda', choice]), \
                      contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-                    status = iso_tools.main(['--dry-run'])
+                    status = iso_tools.main(['--dry-run', '--host', 'generic', '--password-mode', 'boot'])
                 self.assertEqual(status, 0, stderr.getvalue())
                 self.assertIn(f'desktop = "{expected}"', stdout.getvalue())
                 self.assertEqual(stderr.getvalue(), '')
@@ -102,7 +107,7 @@ class IsoTests(unittest.TestCase):
                      patch.object(iso_tools.sys.stdin, 'isatty', return_value=True), \
                      patch('builtins.input', side_effect=answers), \
                      contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
-                    status = iso_tools.main(['--dry-run'])
+                    status = iso_tools.main(['--dry-run', '--host', 'generic', '--password-mode', 'boot'])
                 self.assertEqual(status, 130)
                 self.assertNotIn('Traceback', stderr.getvalue())
                 self.assertEqual(list((self.repo / 'iso-configs').iterdir()), [])
@@ -195,7 +200,7 @@ class IsoTests(unittest.TestCase):
         self.assertIn('name = "ankur"', (ROOT / 'hosts/nixos/identity.nix').read_text())
         live = (ROOT / 'modules/iso/live-installer.nix').read_text()
         self.assertIn('live-user-setup.service', live)
-        self.assertIn('pkgs.shadow}/bin/passwd', live)
+        self.assertIn('live-account-setup.sh', live)
         self.assertIn('wheelNeedsPassword = lib.mkForce true', live)
         self.assertNotIn('initialPassword =', live)
 
