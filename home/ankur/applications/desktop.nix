@@ -23,4 +23,15 @@ in {
     ++ add c.systemMonitor.enable [ pkgs.htop ]
     ++ add c.notifications.enable [ pkgs.libnotify ]
     ++ add c.playerctl.enable [ pkgs.playerctl ];
+
+  # Open PDF files in Okular from Yazi.
+  xdg.configFile."yazi/yazi.toml" = lib.mkIf (c.enable && c.yazi.enable) {
+    text = ''
+      [opener]
+      okular = [{ run = "okular %s", orphan = true, desc = "Open in Okular" }]
+
+      [open]
+      prepend_rules = [{ mime = "application/pdf", use = "okular" }]
+    '';
+  };
 }
