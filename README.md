@@ -915,8 +915,9 @@ updated individually. Other Git checkouts have their own branches and updates.
 
 ### Try the candidate on the laptop
 
-Review the candidate after a successful build, then temporarily activate it from
-the same worktree.
+Review the candidate after a successful build and run the activation command
+from the same worktree. For an update that keeps the running kernel and driver,
+use temporary activation.
 
 ```bash
 git --no-pager diff HEAD -- flake.nix flake.lock
@@ -926,13 +927,13 @@ systemctl --user --failed
 nvim --headless '+qa'
 ```
 
-`test` can restart services and apply Home Manager changes immediately. The
-existing boot default is still available on reboot. Check that you can log in
-to Hyprland, use Wi-Fi, and launch Neovim and the affected plugins. To test a
-new kernel or NVIDIA driver, first confirm that a known-good generation is
-available in the boot menu. Run `nh os boot . -H nixos --no-update-lock-file`
-and reboot when ready. On the hybrid laptop, check NVIDIA offload with
-`nvidia-offload nvidia-smi` and try suspend/resume after that boot.
+`test` can restart services and apply Home Manager changes immediately. A reboot
+returns to the boot default. For an update that changes the kernel or NVIDIA
+driver, use a boot test. Confirm that the previous generation is visible in
+systemd-boot, run `nh os boot . -H nixos --no-update-lock-file`, and reboot when
+ready. On the hybrid laptop, check NVIDIA offload with `nvidia-offload nvidia-smi`
+and try suspend/resume after that boot. In either test, check that you can log in
+to Hyprland, use Wi-Fi, and launch Neovim and the affected plugins.
 
 After the tests pass, activate permanently from the same worktree and commit
 any lockfile changes you prepared. A PR candidate may already have a commit.

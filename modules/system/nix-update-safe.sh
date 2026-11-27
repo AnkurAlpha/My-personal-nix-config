@@ -144,7 +144,7 @@ if [[ "$mode" == prepare || "$mode" == validate ]]; then
     fi
   fi
   validate_candidate "$profile"
-  say 'Build checks passed. Review this worktree before running nh os test.'
+  say 'Build checks passed. Review this worktree before activating or booting the candidate.'
   exit 0
 fi
 
