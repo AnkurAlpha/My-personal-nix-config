@@ -8,9 +8,9 @@
     diagnostics.enable = true;
     updates.safeAll.enable = true;             # safe set: Home Manager / Nixvim / editing inputs
     updates.allInputs.enable = false;          # potentially updates FIMLoom: off
-    updates.allowFimloom.enable = false;       # preserve FIMLoom exactly
-    updates.allowNixpkgsPinChange.enable = false; # preserve pinned Nixpkgs revision
-    validation.flakeCheck.enable = false;      # optional extra validation
+    updates.allowFimloom.enable = false;       # prepare requires an explicit FIMLoom opt-in
+    updates.allowNixpkgsPinChange.enable = false; # reserve explicit SHA overrides
+    validation.flakeCheck.enable = false;      # prepare and validate always run checks
     safety.confirmBeforeSwitch.enable = true;
     git.autoCommit.enable = true;              # commit only after successful switch
   };

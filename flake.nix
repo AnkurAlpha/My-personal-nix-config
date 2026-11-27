@@ -2,8 +2,8 @@
   description = "Ankur's multi-host NixOS configuration";
 
   inputs = {
-    nixpkgs.url =
-      "github:NixOS/nixpkgs?rev=7fc6f2c20af09cdcaf48b92ec3121860139ec668";
+    # Follow the stable release; flake.lock records the tested revision.
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     # Nixvim is matched to the NixOS 26.05 release.
     nixvim.url = "git+https://github.com/nix-community/nixvim?ref=nixos-26.05";

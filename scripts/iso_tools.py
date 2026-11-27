@@ -220,6 +220,17 @@ def copy_iso(artifact, destination):
     return destination, checksum
 
 
+def build_image(repo, name, output_args, *, hashed=None):
+    with tempfile.TemporaryDirectory(prefix="nixos-iso-build-") as work:
+        public = Path(work) / "public"
+        report = snapshot(repo, public)
+        reference = f"path:{public}#nixosConfigurations.iso-{name}.config.system.build.isoImage"
+        if hashed is not None:
+            reference = preset_wrapper(public, work, name, hashed)
+        run(NIX + ["build", "--no-update-lock-file", *output_args, reference])
+        return report
+
+
 def build(repo, name, destination, *, hashed=None):
     profile_name(name)
     output = output_directory(repo, destination)
@@ -228,13 +239,7 @@ def build(repo, name, destination, *, hashed=None):
     stem = f"{name}-{stamp}-{os.getpid()}"
     link = output / (stem + "-result")
     require(not link.exists() and not link.is_symlink(), "Result link already exists.")
-    with tempfile.TemporaryDirectory(prefix="nixos-iso-build-") as work:
-        public = Path(work) / "public"
-        report = snapshot(repo, public)
-        reference = f"path:{public}#nixosConfigurations.iso-{name}.config.system.build.isoImage"
-        if hashed is not None:
-            reference = preset_wrapper(public, work, name, hashed)
-        run(NIX + ["build", "--no-update-lock-file", "--out-link", link, reference])
+    report = build_image(repo, name, ["--out-link", link], hashed=hashed)
     images = list((link / "iso").glob("*.iso"))
     require(len(images) == 1 and images[0].is_file(), "Build returned no unique ISO under result/iso; inspect the retained result link.")
     iso, checksum = copy_iso(images[0], output / (stem + ".iso"))
@@ -263,6 +268,7 @@ def main(argv=None):
     parser.add_argument("--output-dir", type=Path, default=Path.home() / "ISO")
     parser.add_argument("--configure-only", action="store_true", help="Create and stage a profile without building")
     parser.add_argument("--dry-run", action="store_true", help="Print choices; no file writes, staging or build")
+    parser.add_argument("--validate-only", action="store_true", help="Build an existing --profile from an audited snapshot without copying an ISO")
     args = parser.parse_args(argv)
     try:
         if args.list:
@@ -272,6 +278,9 @@ def main(argv=None):
             print("\n".join(available_hosts(REPO)))
             return 0
         require(os.geteuid() != 0 or args.dry_run, "Build/configure ISOs as your normal user, without sudo.")
+        if args.validate_only:
+            require(args.profile and not args.password_mode and not args.dry_run and not args.list_hosts,
+                    "--validate-only requires an existing --profile and uses the boot-time password mode.")
         inspect_source(REPO)
         if args.profile:
             require(not args.username and not args.desktop and not args.configure_only and args.host is None and args.source_user is None,
@@ -279,6 +288,12 @@ def main(argv=None):
             name = profile_name(args.profile)
             path = REPO / "iso-configs" / (name + ".nix")
             require(path.is_file() and not path.is_symlink(), f"Unknown ISO profile {name}. Use --list.")
+            if args.validate_only:
+                need_tools("git", "nix")
+                clean_for_build(REPO, ["flake.lock"])
+                build_image(REPO, name, ["--no-link"])
+                print(f"ISO profile {name} built successfully from the current lockfile.")
+                return 0
         else:
             name = profile_name(args.name) if args.name is not None else None
             username = live_username(args.username) if args.username is not None else None

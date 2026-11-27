@@ -181,6 +181,33 @@ class IsoTests(unittest.TestCase):
         with patch.object(iso_tools, 'run', side_effect=['iso-configs/travel.nix\0', '']):
             iso_tools.clean_for_build(self.repo, ['iso-configs/travel.nix'])
 
+    def test_validate_existing_profile_uses_unstaged_lock_and_audited_snapshot(self):
+        profile = iso_tools.configure(self.repo, 'travel', 'alice', 'minimal')
+        subprocess.run(['git', 'add', str(profile)], cwd=self.repo, check=True)
+        subprocess.run(['git', '-c', 'user.name=ISO Tests', '-c', 'user.email=tests@example.invalid',
+                        'commit', '-qm', 'baseline'], cwd=self.repo, check=True)
+        lock = self.repo / 'flake.lock'
+        lock.write_text(lock.read_text() + '\n')
+        commands = []
+
+        def inspect_build(command, **kwargs):
+            if 'build' not in command:
+                return iso_tools_real_run(command, **kwargs)
+            commands.append(command)
+            snapshot = Path(command[-1].split('#', 1)[0].removeprefix('path:'))
+            self.assertEqual((snapshot / 'flake.lock').read_bytes(), lock.read_bytes())
+            self.assertEqual((snapshot / 'iso-configs/travel.nix').read_bytes(), profile.read_bytes())
+
+        iso_tools_real_run = iso_tools.run
+        with patch.object(iso_tools, 'REPO', self.repo), patch.object(iso_tools, 'need_tools'), \
+             patch.object(iso_tools, 'run', side_effect=inspect_build), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(iso_tools.main(['--profile', 'travel', '--validate-only']), 0)
+        self.assertEqual(len(commands), 1)
+        self.assertIn('--no-link', commands[0])
+        self.assertIn('--no-update-lock-file', commands[0])
+        status = subprocess.check_output(['git', 'status', '--porcelain'], cwd=self.repo, text=True)
+        self.assertEqual(status, ' M flake.lock\n')
+
     def test_cli_dry_run_and_unknown_profile(self):
         script = str(ROOT / 'scripts/build-iso.sh')
         good = subprocess.run(['bash', script, '--name', 'travel-test', '--username', 'alice', '--dry-run'], text=True, capture_output=True)

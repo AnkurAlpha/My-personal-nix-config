@@ -19,6 +19,7 @@ optional build-time **throwaway** password places its hash in the ISO and Nix st
 - [Desktop and Home Manager](#desktop-and-home-manager)
 - [Gaming and graphics](#gaming-and-graphics)
 - [Power, storage and maintenance](#power-storage-and-maintenance)
+- [Updating and testing](#updating-and-testing)
 - [Commands, updates and recovery](#commands-updates-and-recovery)
 - [Troubleshooting](#troubleshooting)
 - [Validation and current limits](#validation-and-current-limits)
@@ -361,9 +362,10 @@ NixOS describes a desired system. Editing source does not activate it: evaluatio
 resolves typed module options, a build creates immutable store paths, and
 activation selects the resulting generation and changes managed runtime state.
 A flake is the project's named inputs/outputs. [`flake.nix`](flake.nix) declares
-inputs; [`flake.lock`](flake.lock) records exact revisions/hashes. Nixpkgs is also
-explicitly pinned at `7fc6f2c20af09cdcaf48b92ec3121860139ec668`, so a routine
-`nix flake update` cannot move that pin. Nixvim has its own locked Nixpkgs input.
+inputs. Nixpkgs tracks `nixos-26.05`, and [`flake.lock`](flake.lock) records
+the exact revision and hash used by each build. Nixvim has its own locked
+Nixpkgs input. Use [Updating and testing](#updating-and-testing) to review and
+build new revisions before activating them.
 
 | Output | Purpose |
 | --- | --- |
@@ -432,7 +434,7 @@ Repository map and important module owners (H = `hosts/nixos/`, S = `modules/sys
 | `H:printing-peripherals.nix`; `S:printing-peripherals.nix` | Optional scanning/phones/ADB/Bolt; existing CUPS is independently enabled in root host |
 | `H:security-privacy.nix`; `S:security-privacy.nix` | Optional AppArmor/audit/Fail2ban/firewall/SSH hardening/secret tools; off; avoid duplicate GPG agents |
 | `H:multi-host.nix`; `S:multi-host.nix`; `S:nix-fleet.sh` | Host list, ISO helper and this manual; account-relative paths |
-| `H:nixos-updates.nix`; `S:nixos-updates.nix`; `S:nix-update-safe.sh` | Manual guarded input update/build/switch/commit; pin/FIMLoom protections; no scheduled update |
+| `H:nixos-updates.nix`, `S:nixos-updates.nix`, `S:nix-update-safe.sh` | On-demand flake updates, build-only validation, and explicit FIMLoom updates |
 | `H:dev-environments.nix`; `modules/development/`; HM `development-environments.nix` | Plain shell settings, devShell outputs and `nix-dev`; default helper path follows account |
 | `home/ankur/{home,fish,git,gpg,fonts,theme,zellij,trash-cleanup}.nix`; `shell/` | HM root, Fish/Starship/Fastfetch, dynamic Git identity, agent, fonts/themes, multiplexer, existing daily trash policy |
 | `home/ankur/applications/neovim/` | Nixvim options/keymaps/theme/plugins/LSP/completion/dashboard/statusline/snippets/web extras; locked sources, optional FIMLoom off by default |
@@ -858,6 +860,96 @@ has broader scope. Avoid unneeded defragmentation/balance operations. Keep
 restorable off-device backups of home data, projects, keys, licenses and EFI
 recovery material. Git covers committed configuration, not that mutable state.
 
+## Updating and testing
+
+Run these commands as your regular user. The Nixpkgs and Nixvim inputs track
+`nixos-26.05`, and Home Manager tracks `release-26.05`. Each update records the
+chosen revisions in `flake.lock`. For a new NixOS release, review its release
+notes, move all three branch declarations together, and repeat the same checks.
+The `system.stateVersion` and `home.stateVersion` settings describe compatibility
+defaults from the original installation.
+
+### Create an update worktree
+
+Start from the local commit you intend to update. A linked worktree has its own
+working files and Git index, so staged edits in your usual checkout stay there.
+Use a fresh branch and directory name for each independent candidate.
+
+```bash
+cd ~/nixos-config
+git fetch origin main
+git worktree add -b update/26.05 ../nixos-config-update origin/main
+cd ../nixos-config-update
+```
+
+To test a PR or local commit, use its ref in place of `origin/main`. Use the
+helper from the worktree below, which also works before you install the updated
+`nix-update-safe` command via a rebuild.
+
+### Prepare an update or validate an existing candidate
+
+| Command from the worktree | Effect |
+| --- | --- |
+| `bash modules/system/nix-update-safe.sh prepare system` | Refresh Nixpkgs, Home Manager, and Nixvim. Build the laptop, Garuda Home Manager, and the host-matched `my_nix_garuda_iso` profile. |
+| `bash modules/system/nix-update-safe.sh prepare system my_iso` | Use `my_iso` for the ISO validation build. List profiles with `bash scripts/build-iso.sh --list`. |
+| `bash modules/system/nix-update-safe.sh prepare editor` | Refresh `nvimEmmet` and `vimReactSnippets`. |
+| `bash modules/system/nix-update-safe.sh prepare input nvimEmmet` | Refresh one named moving input. Selecting a system input also runs the Garuda and ISO builds. |
+| `bash modules/system/nix-update-safe.sh prepare input fimloom --allow-fimloom` | Explicitly request a FIMLoom-only update. |
+| `bash modules/system/nix-update-safe.sh validate my_nix_garuda_iso` | Build the laptop, Garuda Home Manager, and the ISO using the current lockfile. Omit the profile for laptop-only validation. |
+
+`prepare` starts from a clean worktree, displays the lockfile diff, runs the
+repository and flake checks, and builds the candidate. It leaves the proposed
+lockfile available for review, including after a failed build. `validate` reruns
+the checks against those same inputs, so it is also the command to use on an
+already locked PR. Both commands stop at the build stage. ISO validation uses an
+audited tracked-source snapshot and builds into the Nix store. Use
+`bash scripts/build-iso.sh --profile my_nix_garuda_iso` from a committed candidate
+when you want an ISO file and checksum for VM or USB testing.
+
+The editor inputs are ordinary Git repositories marked `flake = false`. For a
+new Git source, declare it the same way in `flake.nix`, pass it to the consuming
+module, and commit its lock entry. To move SmoothCursor or NeoMinimap, edit its
+declared commit or tag, run `nix flake update smoothcursor` or
+`nix flake update neominimap` as appropriate, and run `validate`. FIMLoom is
+updated individually. Other Git checkouts have their own branches and updates.
+
+### Try the candidate on the laptop
+
+Review the candidate after a successful build and run the activation command
+from the same worktree. For an update that keeps the running kernel and driver,
+use temporary activation.
+
+```bash
+git --no-pager diff HEAD -- flake.nix flake.lock
+nh os test . -H nixos --no-update-lock-file
+systemctl --failed
+systemctl --user --failed
+nvim --headless '+qa'
+```
+
+`test` can restart services and apply Home Manager changes immediately. A reboot
+returns to the boot default. For an update that changes the kernel or NVIDIA
+driver, use a boot test. Confirm that the previous generation is visible in
+systemd-boot, run `nh os boot . -H nixos --no-update-lock-file`, and reboot when
+ready. On the hybrid laptop, check NVIDIA offload with `nvidia-offload nvidia-smi`
+and try suspend/resume after that boot. In either test, check that you can log in
+to Hyprland, use Wi-Fi, and launch Neovim and the affected plugins.
+
+After the tests pass, activate permanently from the same worktree and commit
+any lockfile changes you prepared. A PR candidate may already have a commit.
+
+```bash
+nh os switch . -H nixos --no-update-lock-file
+git add -- flake.lock
+git diff --cached --check
+git diff --cached
+git commit -m "Update NixOS 26.05 flake inputs"
+```
+
+If a permanent update fails, boot a known-good generation from systemd-boot
+or use `sudo nixos-rebuild switch --rollback` on a working system. Revert the
+bad update commit on the affected Git branch before the next rebuild.
+
 ## Commands, updates and recovery
 
 Examples use the original `nixos` attribute; replace it deliberately for another
@@ -875,7 +967,7 @@ machine. Do not activate another machine's hardware configuration on this laptop
 | `nix flake check --no-build --no-update-lock-file` | Evaluate/check outputs; no check builds or pin changes |
 | `nix flake check --no-update-lock-file` | Also build declared checks, not every system/ISO closure |
 | `nix flake update home-manager` | Update selected moving input; review/build; no activation |
-| `nix flake update` | Re-resolve inputs; explicit Nixpkgs pin stays fixed |
+| `nix flake update` | Re-resolve all moving inputs, including Nixpkgs and FIMLoom. Prefer a named update group for routine work. |
 | `nix search nixpkgs '^ripgrep$'` | Registry package search, possibly different pin |
 | `nix shell nixpkgs#jq` | Temporary packages |
 | `nix develop .#cpp`; `nix-dev list` | Repo-locked language shells/helper |
@@ -890,12 +982,12 @@ need only its restart or a fresh login. `test` really activates services and can
 interrupt networking. `daemon-reload` alone does not change running behavior.
 Inspect `systemctl --failed` after activation; failures can leave partial changes.
 
-`nix-update-safe status` is read-only. `safe-all` is an existing manual guarded
-update/build/confirm/switch/optional commit workflow protecting FIMLoom and fixed
-pins; no scheduled updates, cleanup, automatic reboot or push. Direnv's `.envrc`
-can run shell code: review before `direnv allow`. New dev-shell files must be
-Git-added; changes to already tracked files are visible without a commit. A
-commit is the reproducible checkpoint, not a prerequisite for every tracked edit.
+`nix-update-safe status` reports pins in the configured checkout. The legacy
+`safe-all` command offers to switch after building its selected updates. For
+routine testing, use [Updating and testing](#updating-and-testing) in a worktree.
+Review Direnv's `.envrc` before `direnv allow` because it can run shell code.
+Add new dev-shell files to Git so Nix can see them. Edits to already tracked
+files are visible before committing.
 
 Generations point to immutable store closures. `/run/current-system` is active;
 `/nix/var/nix/profiles/system` tracks the selected system profile. Boot entries let
